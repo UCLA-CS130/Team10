@@ -1,13 +1,13 @@
-## Basic Echo ServerUsage
+### Basic Echo Server Usage
 
-`
-g++ server.cpp -o server -lboost_system
-./server <port>
-`
+```bash
+  g++ server.cpp -o server -lboost_system
+  ./server <port>
+```
 
 then open another terminal
-`
-telnet localhost <port>
-`
+```bash
+  telnet localhost <port>
+```
 
 and it should echo your responses!

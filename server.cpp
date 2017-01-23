@@ -1,137 +1,94 @@
 //
-// async_tcp_echo_server.cpp
-// ~~~~~~~~~~~~~~~~~~~~~~~~~
+// server.cpp
+// ~~~~~~~~~~
 //
-// Copyright (c) 2003-2011 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <cstdlib>
-#include <iostream>
+#include "server.hpp"
 #include <boost/bind.hpp>
-#include <boost/asio.hpp>
+#include <signal.h>
 
-using boost::asio::ip::tcp;
+namespace http {
+namespace server {
 
-class session
+server::server(const std::string& address, const std::string& port,
+    const std::string& doc_root)
+  : io_service_(),
+    signals_(io_service_),
+    acceptor_(io_service_),
+    connection_manager_(),
+    new_connection_(),
+    request_handler_(doc_root)
 {
-public:
-  session(boost::asio::io_service& io_service)
-    : socket_(io_service)
-  {
-  }
+  // Register to handle the signals that indicate when the server should exit.
+  // It is safe to register for the same signal multiple times in a program,
+  // provided all registration for the specified signal is made through Asio.
+  signals_.add(SIGINT);
+  signals_.add(SIGTERM);
+#if defined(SIGQUIT)
+  signals_.add(SIGQUIT);
+#endif // defined(SIGQUIT)
+  signals_.async_wait(boost::bind(&server::handle_stop, this));
 
-  tcp::socket& socket()
-  {
-    return socket_;
-  }
+  // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
+  boost::asio::ip::tcp::resolver resolver(io_service_);
+  boost::asio::ip::tcp::resolver::query query(address, port);
+  boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
+  acceptor_.open(endpoint.protocol());
+  acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+  acceptor_.bind(endpoint);
+  acceptor_.listen();
 
-  void start()
-  {
-    socket_.async_read_some(boost::asio::buffer(data_, max_length),
-        boost::bind(&session::handle_read, this,
-          boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred));
-  }
-
-private:
-  void handle_read(const boost::system::error_code& error,
-      size_t bytes_transferred)
-  {
-    if (!error)
-    {
-      boost::asio::async_write(socket_,
-          boost::asio::buffer(data_, bytes_transferred),
-          boost::bind(&session::handle_write, this,
-            boost::asio::placeholders::error));
-    }
-    else
-    {
-      delete this;
-    }
-  }
-
-  void handle_write(const boost::system::error_code& error)
-  {
-    if (!error)
-    {
-      socket_.async_read_some(boost::asio::buffer(data_, max_length),
-          boost::bind(&session::handle_read, this,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
-    }
-    else
-    {
-      delete this;
-    }
-  }
-
-  tcp::socket socket_;
-  enum { max_length = 1024 };
-  char data_[max_length];
-};
-
-class server
-{
-public:
-  server(boost::asio::io_service& io_service, short port)
-    : io_service_(io_service),
-      acceptor_(io_service, tcp::endpoint(tcp::v4(), port))
-  {
-    start_accept();
-  }
-
-private:
-  void start_accept()
-  {
-    session* new_session = new session(io_service_);
-    acceptor_.async_accept(new_session->socket(),
-        boost::bind(&server::handle_accept, this, new_session,
-          boost::asio::placeholders::error));
-  }
-
-  void handle_accept(session* new_session,
-      const boost::system::error_code& error)
-  {
-    if (!error)
-    {
-      new_session->start();
-    }
-    else
-    {
-      delete new_session;
-    }
-
-    start_accept();
-  }
-
-  boost::asio::io_service& io_service_;
-  tcp::acceptor acceptor_;
-};
-
-int main(int argc, char* argv[])
-{
-  try
-  {
-    if (argc != 2)
-    {
-      std::cerr << "Usage: async_tcp_echo_server <port>\n";
-      return 1;
-    }
-
-    boost::asio::io_service io_service;
-
-    using namespace std; // For atoi.
-    server s(io_service, atoi(argv[1]));
-
-    io_service.run();
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << "\n";
-  }
-
-  return 0;
+  start_accept();
 }
+
+void server::run()
+{
+  // The io_service::run() call will block until all asynchronous operations
+  // have finished. While the server is running, there is always at least one
+  // asynchronous operation outstanding: the asynchronous accept call waiting
+  // for new incoming connections.
+  io_service_.run();
+}
+
+void server::start_accept()
+{
+  new_connection_.reset(new connection(io_service_,
+        connection_manager_, request_handler_));
+  acceptor_.async_accept(new_connection_->socket(),
+      boost::bind(&server::handle_accept, this,
+        boost::asio::placeholders::error));
+}
+
+void server::handle_accept(const boost::system::error_code& e)
+{
+  // Check whether the server was stopped by a signal before this completion
+  // handler had a chance to run.
+  if (!acceptor_.is_open())
+  {
+    return;
+  }
+
+  if (!e)
+  {
+    connection_manager_.start(new_connection_);
+  }
+
+  start_accept();
+}
+
+void server::handle_stop()
+{
+  // The server is stopped by cancelling all outstanding asynchronous
+  // operations. Once all operations have finished the io_service::run() call
+  // will exit.
+  acceptor_.close();
+  connection_manager_.stop_all();
+}
+
+} // namespace server
+} // namespace http

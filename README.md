@@ -20,9 +20,9 @@ $ diff demo/index.html demo/index.html.res
 returns nothing, which means the two files are exactly the same.
 
 ## TODO
-1. Use config file and config parser to handle <host> <port> and <root-directory> arguments
+1. Use config file and config parser to handle \<host\> \<port\> and \<root-directory\> arguments
 2. Create valid HTTP response headers
-2a. \r\n bullshit
+3. \r\n bullshit
 
 ### Code skeleton
 http://www.boost.org/doc/libs/1_57_0/doc/html/boost_asio/examples/cpp03_examples.html

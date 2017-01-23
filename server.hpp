@@ -18,6 +18,8 @@
 #include "connection_manager.hpp"
 #include "request_handler.hpp"
 
+#include "config_parser.hpp"
+
 namespace http {
 namespace server {
 

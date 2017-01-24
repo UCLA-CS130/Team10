@@ -9,3 +9,6 @@ LDFLAGS+=-lboost_system
 %.o:	%.cpp	;	$(CXX) $(CPPFLAGS) $^ -c -o $@
 
 server:	$(patsubst %.cpp,%.o,$(wildcard *.cpp))	;	$(CXX) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
+
+clean:
+	rm -f *.o server

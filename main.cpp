@@ -17,8 +17,10 @@
 
 #include "config_parser.hpp"
 
+// I don't wanna type std::unordered_map blahblahba
+typedef std::unordered_map <std::string, std::string> Dictionary;
 struct Server {
-  std::unordered_map <std::string, std::string> params;
+  Dictionary params;
 };
 
 // TODO: Change to recursive if needed?
@@ -88,7 +90,6 @@ int main(int argc, char* argv[])
   try
   {
 
-    // TODO: Take in one command-line argument for config file
     if (argc != 2)
     {
       std::cerr << "Usage: ./server /path/to/config/file\n";
@@ -105,34 +106,6 @@ int main(int argc, char* argv[])
 
     parseNginxConfig(out_config, server );
 
-    std::cout << server->params["host"] << std::endl;
-    std::cout << server->params["port"] << std::endl;
-    std::cout << server->params["root"] << std::endl;
-
-    // out_config is a list of vectors representing statements
-    // Iterate through all statements
-    // Construct a server object to hold params
-    // Pass object.params into server constructor
-    // http::server::server s(server.name,server.port, server.location);
-
-    // OR 
-
-    // Pass directly as config file and let server class handle further parsing
-    // http::server::server s(out_config);
-
-    // UNCOMMENT BELOW FOR REGULAR OPERATION
-
-    // Check command line arguments.
-    // if (argc != 4)
-    // {
-    //   std::cerr << "Usage: http_server <address> <port> <doc_root>\n";
-    //   std::cerr << "  For IPv4, try:\n";
-    //   std::cerr << "    receiver 0.0.0.0 80 .\n";
-    //   std::cerr << "  For IPv6, try:\n";
-    //   std::cerr << "    receiver 0::0 80 .\n";
-    //   return 1;
-    // }
-    //
     // Initialise the server.
     std::string host = server->params["host"];
     std::string port = server->params["port"];
@@ -142,7 +115,7 @@ int main(int argc, char* argv[])
     // Run the server until stopped.
     s.run();
 
-    // Delete
+    // Clean up
     delete parser;
     delete out_config;
     delete server;
@@ -151,8 +124,6 @@ int main(int argc, char* argv[])
   {
     std::cerr << "exception: " << e.what() << "\n";
   }
-
-
 
   return 0;
 }

@@ -21,8 +21,7 @@ returns nothing, which means the two files are exactly the same.
 
 ## TODO
 1. Use config file and config parser to handle \<host\> \<port\> and \<root-directory\> arguments
-2. Create valid HTTP response headers
-3. \r\n bullshit
+2. Create valid HTTP response headers 
 
 ### Code skeleton
 http://www.boost.org/doc/libs/1_57_0/doc/html/boost_asio/examples/cpp03_examples.html

@@ -1,4 +1,4 @@
-all:server
+all:webserver
 
 CPPFLAGS+=-std=c++11 -Wall -pedantic
 CPPFLAGS+=-g -O2
@@ -8,7 +8,7 @@ LDFLAGS+=-lboost_system
 
 %.o:	%.cpp	;	$(CXX) $(CPPFLAGS) $^ -c -o $@
 
-server:	$(patsubst %.cpp,%.o,$(wildcard *.cpp))	;	$(CXX) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
+webserver:	$(patsubst %.cpp,%.o,$(wildcard *.cpp))	;	$(CXX) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
-	rm -f *.o server
+	rm -f *.o webserver

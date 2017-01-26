@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
     parseNginxConfig(out_config, server );
 
     // Initialise the server.
-    std::string host = "127.0.0.1";
+    std::string host = "0.0.0.0";
     std::string port = server->params["port"];
     std::string root = "";
     http::server::server s(host, port, root);

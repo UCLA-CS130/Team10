@@ -111,7 +111,6 @@ int main(int argc, char* argv[])
     std::string host = "127.0.0.1";
     std::string port = server->params["port"];
     std::string root = "";
-    std::cout << "Root: " << root << std::endl;
     http::server::server s(host, port, root);
     
     // Run the server until stopped.

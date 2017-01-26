@@ -61,20 +61,9 @@ void request_handler::handle_request(const request& req, reply& rep)
     rep = reply::stock_reply(reply::not_found);
     return;
   }
-  /*std::vector<http::server::header>::const_iterator it = req.headers.begin();
-  //if (it == req.headers.end())
-    std::cout << "I'm sad" << std::endl;
-  else
-    std::cout << it->name << std::endl;*/
   // Fill out the reply to be sent to the client.
   rep.status = reply::ok;
-  //It would be nice if this worked
-  //rep.content is a string
-  //TODO: make it work
   rep.content = req.toString();
-  //char buf[512];
-  //while (is.read(buf, sizeof(buf)).gcount() > 0)
-  //  rep.content.append(buf, is.gcount());
   rep.headers.resize(2);
   rep.headers[0].name = "Content-Length";
   rep.headers[0].value = boost::lexical_cast<std::string>(rep.content.size());

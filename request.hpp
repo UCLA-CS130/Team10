@@ -36,6 +36,14 @@ struct request
     result += std::to_string(http_version_major);
     result += ".";
     result += std::to_string(http_version_minor);
+    result += "\r\n";
+    for (const auto& header : headers) {
+        result += header.name;
+        result += ": ";
+        result += header.value;
+        result += "\r\n";
+    }
+    result += "\r\n";
     return result;
   }
 };

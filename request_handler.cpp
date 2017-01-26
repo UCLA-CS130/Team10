@@ -44,10 +44,11 @@ void request_handler::handle_request(const request& req, reply& rep)
   }
 
   // If path ends in slash (i.e. is a directory) then add "index.html".
+  /*
   if (request_path[request_path.size() - 1] == '/')
   {
     request_path += "index.html";
-  }
+  }*/
 
   // Determine the file extension.
   std::size_t last_slash_pos = request_path.find_last_of("/");
@@ -60,6 +61,7 @@ void request_handler::handle_request(const request& req, reply& rep)
 
   // Open the file to send back.
   std::string full_path = doc_root_ + request_path;
+  std::cout << "Full path: " << full_path << std::endl;
   std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
   if (!is)
   {

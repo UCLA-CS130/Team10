@@ -43,12 +43,6 @@ void request_handler::handle_request(const request& req, reply& rep)
     return;
   }
 
-  // If path ends in slash (i.e. is a directory) then add "index.html".
-  if (request_path[request_path.size() - 1] == '/')
-  {
-    request_path += "index.html";
-  }
-
   // Determine the file extension.
   std::size_t last_slash_pos = request_path.find_last_of("/");
   std::size_t last_dot_pos = request_path.find_last_of(".");
@@ -66,12 +60,9 @@ void request_handler::handle_request(const request& req, reply& rep)
     rep = reply::stock_reply(reply::not_found);
     return;
   }
-
   // Fill out the reply to be sent to the client.
   rep.status = reply::ok;
-  char buf[512];
-  while (is.read(buf, sizeof(buf)).gcount() > 0)
-    rep.content.append(buf, is.gcount());
+  rep.content = req.toString();
   rep.headers.resize(2);
   rep.headers[0].name = "Content-Length";
   rep.headers[0].value = boost::lexical_cast<std::string>(rep.content.size());

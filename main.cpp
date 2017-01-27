@@ -33,7 +33,8 @@ bool parseNginxConfig(NginxConfig* config, Server* out)
     for (auto token: statement->tokens_) 
     {
       std::cout << token << std::endl;
-
+      if (token == "port")
+        out->params["port"] = statement->tokens_[1];
       // In the server configuration context
       if (token == "server") 
       {
@@ -107,9 +108,9 @@ int main(int argc, char* argv[])
     parseNginxConfig(out_config, server );
 
     // Initialise the server.
-    std::string host = server->params["host"];
+    std::string host = "0.0.0.0";
     std::string port = server->params["port"];
-    std::string root = server->params["root"];
+    std::string root = "";
     http::server::server s(host, port, root);
     
     // Run the server until stopped.

@@ -26,6 +26,26 @@ struct request
   int http_version_major;
   int http_version_minor;
   std::vector<header> headers;
+  
+  std::string toString() const{
+    std::string result = "";
+    result += method;
+    result += " ";
+    result += uri;
+    result += " HTTP/";
+    result += std::to_string(http_version_major);
+    result += ".";
+    result += std::to_string(http_version_minor);
+    result += "\r\n";
+    for (const auto& header : headers) {
+        result += header.name;
+        result += ": ";
+        result += header.value;
+        result += "\r\n";
+    }
+    result += "\r\n";
+    return result;
+  }
 };
 
 } // namespace server

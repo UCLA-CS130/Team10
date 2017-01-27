@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 
     if (argc != 2)
     {
-      std::cerr << "Usage: ./server /path/to/config/file\n";
+      std::cerr << "Usage: ./webserver /path/to/config/file\n";
       return 1;
     }
 

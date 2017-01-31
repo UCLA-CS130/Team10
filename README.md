@@ -2,7 +2,7 @@
 ## Usage
 
 ```bash
-./webserver <config file>
+$ ./webserver <config file>
 ```
 
 ## Example
@@ -12,15 +12,15 @@ $ make
 $ ./webserver ./demo/example_conf 
 ```
 
-Open a browser and go to "localhost:<port>"
+Open a browser and go to "localhost:\<port\>"
 Request will be echoed in the webpage.
 
 ## Testing
 
 ```bash
-sudo apt-get install python-pip
-sudo pip install psutil
-python test.py
+$ sudo apt-get install python-pip
+$ sudo pip install psutil
+$ python test.py
 ```
 
 Verify the request and response are valid.

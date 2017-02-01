@@ -7,4 +7,5 @@ install:
 addons:
  apt:
    packages:
+   - libwww-perl
    - libboost-all-dev

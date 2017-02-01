@@ -13,4 +13,4 @@ webserver:	$(patsubst %.cpp,%.o,$(wildcard *.cpp))	;	$(CXX) $(CPPFLAGS) $^ -o $@
 clean:
 	rm -f *.o webserver
 
-int:	;		python test.py 
+int:	;	sudo apt-get install python-pip	;	sudo pip install psutil	;	python test.py 

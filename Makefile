@@ -12,3 +12,5 @@ webserver:	$(patsubst %.cpp,%.o,$(wildcard *.cpp))	;	$(CXX) $(CPPFLAGS) $^ -o $@
 
 clean:
 	rm -f *.o webserver
+
+int:  ;	 python test.py 

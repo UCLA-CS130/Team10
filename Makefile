@@ -1,6 +1,6 @@
 all:webserver
 
-CPPFLAGS+=-std=c++11 -Wall Werror -pedantic
+CPPFLAGS+=-std=c++11 -Wall -Werror -pedantic
 CPPFLAGS+=-g -O2
 
 CPPFLAGS+=-pthread

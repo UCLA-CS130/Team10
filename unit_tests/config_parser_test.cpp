@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "../config_parser.hpp"
 
-TEST(NginxConfigParserTest, SimpleConfig) {
+/*TEST(NginxConfigParserTest, SimpleConfig) {
   NginxConfigParser parser;
   NginxConfig out_config;
 
@@ -9,6 +9,7 @@ TEST(NginxConfigParserTest, SimpleConfig) {
 
   EXPECT_TRUE(success);
 }
+*/
 
 // test fixture used in following test
 class NginxConfigParser_Test:public::testing::Test{

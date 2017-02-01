@@ -5,7 +5,9 @@ case `uname` in
   Linux)
     g++ -std=c++0x -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
     ar -rv libgtest.a gtest-all.o
-    g++ -std=c++0x -isystem ${GTEST_DIR}/include -pthread config_parser_test.cpp ../config_parser.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o config_parser_test ;;
+    g++ -std=c++0x -isystem ${GTEST_DIR}/include -pthread config_parser_test.cpp ../config_parser.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o config_parser_test
+    g++ -std=c++0x -isystem ${GTEST_DIR}/include -pthread mime_types_test.cpp ../mime_types.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o mime_types_test ;;
+
   Darwin)
     clang++ -std=c++11 -stdlib=libc++ -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
     ar -rv libgtest.a gtest-all.o

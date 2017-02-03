@@ -152,12 +152,9 @@ bool NginxConfigParser::Parse(std::istream* config_file, NginxConfig* config) {
   config_stack.push(config);
   TokenType last_token_type = TOKEN_TYPE_START;
   TokenType token_type;
-
-  // Create a token stack to handle multiple contexts
-  // Note: I understand this can be solved with a simple counter variable.
-
-  std::stack<TokenType> token_stack;
-
+  int block_depth = 0;
+  //block_depth keeps track of the nesting level of the current token
+  //and is used to ensure that braces match in valid configs
   while (true) {
     std::string token;
     token_type = ParseToken(config_file, &token);
@@ -196,6 +193,7 @@ bool NginxConfigParser::Parse(std::istream* config_file, NginxConfig* config) {
         break;
       }
     } else if (token_type == TOKEN_TYPE_START_BLOCK) {
+      block_depth++;
       if (last_token_type != TOKEN_TYPE_NORMAL) {
         // Error.
         break;
@@ -204,37 +202,22 @@ bool NginxConfigParser::Parse(std::istream* config_file, NginxConfig* config) {
       config_stack.top()->statements_.back().get()->child_block_.reset(
           new_config);
       config_stack.push(new_config);
-
-      // Push to token stack
-      token_stack.push(token_type);
-
-
     } else if (token_type == TOKEN_TYPE_END_BLOCK) {
-
-      // Also check if token stack has start braces in it
-      if (token_stack.empty() ||
-          (last_token_type != TOKEN_TYPE_STATEMENT_END &&
-           last_token_type != TOKEN_TYPE_END_BLOCK)) {
-
+      block_depth--;
+      if (last_token_type != TOKEN_TYPE_STATEMENT_END) {
         // Error.
         break;
       }
-
       config_stack.pop();
-
-      // Pop from token stack
-      token_stack.pop();
-
     } else if (token_type == TOKEN_TYPE_EOF) {
-
-      // Also check if stack is empty
-      if ((last_token_type != TOKEN_TYPE_STATEMENT_END &&
-          last_token_type != TOKEN_TYPE_END_BLOCK) ||
-          !token_stack.empty()) {
+      if (last_token_type != TOKEN_TYPE_STATEMENT_END &&
+          last_token_type != TOKEN_TYPE_END_BLOCK &&
+	  last_token_type != TOKEN_TYPE_START) {
         // Error.
         break;
       }
-      return true;
+      if (block_depth == 0)
+        return true;
     } else {
       // Error. Unknown token.
       break;

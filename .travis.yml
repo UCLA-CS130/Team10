@@ -1,7 +1,9 @@
 dist: trusty
 sudo: required
 language: cpp
-script: make int
+script:
+  - make int
+  - make debug
 install:
   - pip install psutil
 addons:

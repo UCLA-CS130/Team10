@@ -1,7 +1,6 @@
 #include <string>
 #include "../request.hpp"
 #include "gtest/gtest.h"
-#include <iostream>
 
 TEST(RequestTest, ToStringTest){
 
@@ -13,6 +12,5 @@ TEST(RequestTest, ToStringTest){
   h1.name = "Host";
   h1.value = "localhost:3000";
   rqst.headers.push_back(h1);
-  std::cout << rqst.toString();
   EXPECT_EQ("GET  HTTP/1.1\r\nHost: localhost:3000\r\n\r\n", rqst.toString());
 }

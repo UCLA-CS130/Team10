@@ -28,7 +28,7 @@ public:
 
   /// Reset to initial parser state.
   void reset();
-
+  bool isStart();
   /// Parse some data. The tribool return value is true when a complete request
   /// has been parsed, false if the data is invalid, indeterminate when more
   /// data is required. The InputIterator return value indicates how much of the
@@ -47,9 +47,10 @@ public:
     return boost::make_tuple(result, begin);
   }
 
-private:
   /// Handle the next character of input.
   boost::tribool consume(request& req, char input);
+
+private:
 
   /// Check if a byte is an HTTP character.
   static bool is_char(int c);

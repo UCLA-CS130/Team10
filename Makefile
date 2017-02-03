@@ -19,7 +19,7 @@ debug: webserver
 debug: test
 	for test in $(TEST_CLASSES); do gcov -r $$test; done
 
-release: CPPFLAGS+=-O3 -pedantic
+release: CPPFLAGS+=-O3
 release: webserver
 
 libgtest.a:

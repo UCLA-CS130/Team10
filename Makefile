@@ -13,6 +13,8 @@ CLASSES=config_parser.o connection.o connection_manager.o main.o mime_types.o re
 
 .PHONY: clean test release
 
+int:  ;	 python test.py
+
 debug: webserver
 debug: test
 	for test in $(TEST_CLASSES); do gcov -r $$test; done

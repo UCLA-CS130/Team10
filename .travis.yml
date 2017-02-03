@@ -1,8 +1,13 @@
-language: cpp
 dist: trusty
 sudo: required
-script: make debug
+language: cpp
+script:
+  - make init
+  - make debug
+install:
+  - pip install psutil
 addons:
  apt:
    packages:
+   - libwww-perl
    - libboost-all-dev

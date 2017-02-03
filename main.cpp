@@ -29,10 +29,8 @@ bool parseNginxConfig(NginxConfig* config, Server* out)
 
   for ( auto statement : config->statements_ ) 
   {
-    std::cout << statement->ToString(0) << std::endl;
     for (auto token: statement->tokens_) 
     {
-      std::cout << token << std::endl;
       if (token == "port")
         out->params["port"] = statement->tokens_[1];
       // In the server configuration context
@@ -47,8 +45,6 @@ bool parseNginxConfig(NginxConfig* config, Server* out)
           int index = 0;
           for (auto& tkn : stmt->tokens_)
           {
-            std::cout << tkn << std::endl;
-
             if (tkn == "listen") 
             {
               out->params["port"] = stmt->tokens_[index + 1];
@@ -68,7 +64,6 @@ bool parseNginxConfig(NginxConfig* config, Server* out)
                 int i = 0;
                 for (auto t : s->tokens_)
                 {
-                  std::cout << t << std::endl;
                   if (t == "root")
                   {
                     out->params["root"] = s->tokens_[i + 1];

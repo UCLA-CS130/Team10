@@ -34,17 +34,17 @@ public:
       const std::string& doc_root);
 
   /// Run the server's io_service loop.
-  void run();
+  virtual  void run();
 
 private:
   /// Initiate an asynchronous accept operation.
-  void start_accept();
+  virtual void start_accept();
 
   /// Handle completion of an asynchronous accept operation.
-  void handle_accept(const boost::system::error_code& e);
+  virtual void handle_accept(const boost::system::error_code& e);
 
   /// Handle a request to stop the server.
-  void handle_stop();
+  virtual void handle_stop();
 
   /// The io_service used to perform asynchronous operations.
   boost::asio::io_service io_service_;

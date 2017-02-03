@@ -24,6 +24,11 @@ void request_parser::reset()
   state_ = method_start;
 }
 
+bool request_parser::isStart()
+{
+  return state_ == method_start;
+}
+
 boost::tribool request_parser::consume(request& req, char input)
 {
   switch (state_)

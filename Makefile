@@ -10,7 +10,7 @@ UNIT_TESTS_DIR=unit_tests
 GMOCK_DIR=googletest/googlemock
 GTEST_DIR=googletest/googletest
 
-TESTS=config_parser_test request_test request_handler_test request_parser_test reply_test connection_test connection_manager_test mime_types_test server_test
+TESTS=unit_tests/config_parser_test unit_tests/request_test unit_tests/request_handler_test unit_tests/request_parser_test unit_tests/reply_test unit_tests/connection_manager_test unit_tests/mime_types_test unit_tests/connection_test
 
 TEST_CLASSES=config_parser.cpp connection.cpp connection_manager.cpp mime_types.cpp reply.cpp request_handler.cpp request_parser.cpp server.cpp
 
@@ -35,37 +35,11 @@ libgmock.a:
 	g++ -std=c++11 -isystem ${GTEST_DIR}/include -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} -I${GTEST_DIR} -pthread -c ${GMOCK_DIR}/src/gmock-all.cc
 	ar -rv libgmock.a gmock-all.o
 
-config_parser_test: $(UNIT_TESTS_DIR)/config_parser_test.cpp libgtest.a
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread config_parser.cpp $(UNIT_TESTS_DIR)/config_parser_test.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -fprofile-arcs -ftest-coverage -o config_parser_test
+%_test: %_test.cpp libgtest.a libgmock.a
+	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(TEST_CLASSES) $(TESTS:=.cpp) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -fprofile-arcs -ftest-coverage -o $@ -lboost_system
 
-request_test: $(UNIT_TESTS_DIR)/request_test.cpp libgtest.a
-	 g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(UNIT_TESTS_DIR)/request_test.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o request_test -lboost_system
-
-
-request_handler_test: $(UNIT_TESTS_DIR)/request_handler_test.cpp request_handler.cpp reply.cpp libgtest.a mime_types.cpp libgtest.a
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(UNIT_TESTS_DIR)/request_handler_test.cpp reply.cpp request_handler.cpp mime_types.cpp  ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o request_handler_test -lboost_system
-
-request_parser_test: $(UNIT_TESTS_DIR)/request_parser_test.cpp libgtest.a
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(UNIT_TESTS_DIR)/request_parser_test.cpp request_parser.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o request_parser_test -lboost_system
-
-reply_test: $(UNIT_TESTS_DIR)/reply_test.cpp reply.cpp libgtest.a
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(UNIT_TESTS_DIR)/reply_test.cpp reply.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o reply_test -lboost_system
-
-
-connection_test: $(UNIT_TESTS_DIR)/connection_test.cpp connection.cpp reply.cpp request_handler.cpp request_parser.cpp mime_types.cpp connection_manager.cpp libgtest.a 
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(UNIT_TESTS_DIR)/connection_test.cpp connection.cpp reply.cpp request_handler.cpp request_parser.cpp mime_types.cpp connection_manager.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o connection_test -lboost_system
-
-connection_manager_test: $(UNIT_TESTS_DIR)/connection_manager_test.cpp connection.cpp reply.cpp request_handler.cpp request_parser.cpp mime_types.cpp connection_manager.cpp libgtest.a
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(UNIT_TESTS_DIR)/connection_manager_test.cpp connection.cpp reply.cpp request_handler.cpp request_parser.cpp mime_types.cpp connection_manager.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o connection_manager_test -lboost_system
-
-mime_types_test: $(UNIT_TESTS_DIR)/mime_types_test.cpp mime_types.cpp libgtest.a
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(UNIT_TESTS_DIR)/mime_types_test.cpp mime_types.cpp ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o mime_types_test
-
-server_test: $(UNIT_TESTS_DIR)/server_test.cpp connection.cpp reply.cpp request_handler.cpp request_parser.cpp mime_types.cpp connection_manager.cpp server.cpp libgtest.a libgmock.a
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -isystem ${GMOCK_DIR}/include -pthread $(UNIT_TESTS_DIR)/server_test.cpp server.cpp connection.cpp request_parser.cpp mime_types.cpp reply.cpp request_handler.cpp connection_manager.cpp  ${GMOCK_DIR}/src/gmock_main.cc libgtest.a libgmock.a -o server_test -lboost_system
-
-#%.o: $(CLASSES)
-#	$(CXX) -Werror $(CPPFLAGS) $^ -c
+server_test: $(UNIT_TESTS_DIR)/server_test.cpp libgtest.a libgmock.a
+	g++ -std=c++11 -isystem ${GTEST_DIR}/include -isystem ${GMOCK_DIR}/include -pthread $(UNIT_TESTS_DIR)/server_test.cpp server.cpp ${GMOCK_DIR}/src/gmock_main.cc libgtest.a libgmock.a -fprofile-arcs -ftest-coverage -o server_test -lboost_system
 
 test: $(TESTS)
 	for test in $(TESTS); do ./$$test; done

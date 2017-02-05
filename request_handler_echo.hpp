@@ -26,8 +26,6 @@ class request_handler_echo
   : public http::server::request_handler
 {
 public:
-  /// Construct with a directory containing files to be served.
-  explicit request_handler_echo(const std::string& doc_root);
 
   /// Handle a request and produce a reply.
   void handle_request(const request& req, reply& rep) override;
@@ -35,9 +33,6 @@ public:
   /// invalid.
   static bool url_decode(const std::string& in, std::string& out);
 
-private:
-  /// The directory containing the files to be served.
-  std::string doc_root_;
 
 };
 

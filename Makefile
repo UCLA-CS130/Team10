@@ -14,7 +14,7 @@ TESTS=unit_tests/config_parser_test unit_tests/request_test unit_tests/request_h
 
 TEST_CLASSES=config_parser.cpp connection.cpp connection_manager.cpp mime_types.cpp reply.cpp request_handler.cpp request_parser.cpp server.cpp
 
-CLASSES=config_parser.o connection.o connection_manager.o main.o mime_types.o reply.o request_handler.o request_parser.o server.o
+CLASSES=config_parser.o connection.o connection_manager.o main.o mime_types.o reply.o request_handler_echo.o request_parser.o server.o
 
 .PHONY: clean test release
 

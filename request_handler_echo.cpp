@@ -8,7 +8,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "request_handler.hpp"
+#include "request_handler_echo.hpp"
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -20,12 +20,12 @@
 namespace http {
 namespace server {
 
-request_handler::request_handler(const std::string& doc_root)
+request_handler_echo::request_handler_echo(const std::string& doc_root)
   : doc_root_(doc_root)
 {
 }
 
-void request_handler::handle_request(const request& req, reply& rep)
+void request_handler_echo::handle_request(const request& req, reply& rep)
 {
   // Decode url to path.
   std::string request_path;
@@ -70,7 +70,7 @@ void request_handler::handle_request(const request& req, reply& rep)
   rep.headers[1].value = mime_types::extension_to_type(extension);
 }
 
-bool request_handler::url_decode(const std::string& in, std::string& out)
+bool request_handler_echo::url_decode(const std::string& in, std::string& out)
 {
   out.clear();
   out.reserve(in.size());

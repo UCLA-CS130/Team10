@@ -16,7 +16,7 @@
 #include <boost/noncopyable.hpp>
 #include "connection.hpp"
 #include "connection_manager.hpp"
-#include "request_handler.hpp"
+#include "request_handler_echo.hpp"
 
 #include "config_parser.hpp"
 
@@ -62,7 +62,7 @@ private:
   connection_ptr new_connection_;
 
   /// The handler for all incoming requests.
-  request_handler request_handler_;
+  request_handler_echo request_handler_echo_;
 };
 
 } // namespace server

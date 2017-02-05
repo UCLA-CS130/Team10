@@ -22,7 +22,7 @@ server::server(const std::string& address, const std::string& port,
     acceptor_(io_service_),
     connection_manager_(),
     new_connection_(),
-    request_handler_(doc_root)
+    request_handler_echo_(doc_root)
 {
   // Register to handle the signals that indicate when the server should exit.
   // It is safe to register for the same signal multiple times in a program,
@@ -58,7 +58,7 @@ void server::run()
 void server::start_accept()
 {
   new_connection_.reset(new connection(io_service_,
-        connection_manager_, request_handler_));
+        connection_manager_, request_handler_echo_));
   acceptor_.async_accept(new_connection_->socket(),
       boost::bind(&server::handle_accept, this,
         boost::asio::placeholders::error));

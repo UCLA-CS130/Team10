@@ -102,10 +102,12 @@ int main(int argc, char* argv[])
 
     parseNginxConfig(out_config, server );
 
+    //TODO: Determine echo server or file server
+
     // Initialise the server.
     std::string host = "0.0.0.0";
     std::string port = server->params["port"];
-    std::string root = "";
+    std::string root = server->params["root"];
     http::server::server s(host, port, root);
     
     // Run the server until stopped.

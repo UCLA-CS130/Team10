@@ -17,6 +17,7 @@
 #include "connection.hpp"
 #include "connection_manager.hpp"
 #include "request_handler_echo.hpp"
+#include "request_handler_file.hpp"
 
 #include "config_parser.hpp"
 
@@ -61,8 +62,13 @@ private:
   /// The next connection to be accepted.
   connection_ptr new_connection_;
 
-  /// The handler for all incoming requests.
+  /// The handler for all incoming echo requests.
   request_handler_echo request_handler_echo_;
+
+  /// The handler for all incoming file requests.
+  request_handler_file request_handler_file_;
+
+
 };
 
 } // namespace server

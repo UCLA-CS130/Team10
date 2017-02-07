@@ -33,7 +33,7 @@ public:
   /// Construct the server to listen on the specified TCP address and port, and
   /// serve up files from the given directory.
   explicit server(const std::string& address, const std::string& port,
-      const std::string& doc_root);
+      const std::string& doc_root, const std::string& echo_path);
 
   /// Run the server's io_service loop.
   void run();

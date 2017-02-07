@@ -26,18 +26,13 @@ struct Server {
 // TODO: Change to recursive if needed?
 bool parseNginxConfig(NginxConfig* config, Server* out)
 {
-
   for ( auto statement : config->statements_ )
   {
     for (auto token: statement->tokens_)
     {
-      if (token == "port")
-        out->params["port"] = statement->tokens_[1];
       // In the server configuration context
       if (token == "server")
       {
-        // TODO: Recurse here to generate a child Server object
-        // parserNginxConfig(statement->child_block_, child)
         // Open NginxConfig object
         NginxConfig* serverConfig = statement->child_block_.get();
         for (auto stmt : serverConfig->statements_ )
@@ -55,21 +50,29 @@ bool parseNginxConfig(NginxConfig* config, Server* out)
               out->params["host"] = stmt->tokens_[index + 1];
             }
 
-            if (tkn == "location")
+            if (tkn == "path")
             {
-              // In location context
-              NginxConfig* loc = stmt->child_block_.get();
-              for (auto s : loc->statements_)
+              if (stmt->tokens_[index + 1] == "/echo")
               {
-                int i = 0;
-                for (auto t : s->tokens_)
+                out->params["echo_path"] = stmt->tokens_[index + 1];
+                continue;
+              }
+              else if (stmt->tokens_[index + 1] == "/static")
+              {
+                NginxConfig* loc = stmt->child_block_.get();
+                for (auto s : loc->statements_)
                 {
-                  if (t == "root")
+                  int i = 0;
+                  for (auto t : s->tokens_)
                   {
-                    out->params["root"] = s->tokens_[i + 1];
+                    if (t == "root")
+                    {
+                      out->params["root"] = s->tokens_[i + 1];
+                      out->params["static_path"] = stmt->tokens_[index + 1];
+                    }
                   }
+                  i++;
                 }
-                i++;
               }
             }
             index++;
@@ -97,9 +100,7 @@ int main(int argc, char* argv[])
     NginxConfig *out_config = new NginxConfig();
 
     parser->Parse(argv[1], out_config);
-
     Server* server = new Server();
-
     parseNginxConfig(out_config, server );
 
     //TODO: Determine echo server or file server
@@ -109,13 +110,12 @@ int main(int argc, char* argv[])
     std::string port = server->params["port"];
     std::string root = server->params["root"];
 
-    // Use echo server
-    // if (root == "echo")
-    // {
-    //
-    // }
+    std::string static_path = server->params["static_path"];
+    std::string echo_path = server->params["echo_path"];
 
-    http::server::server s(host, port, root);
+    std::cout << port << " " << root << " " << static_path << " " << echo_path << std::endl;
+
+    http::server::server s(host, port, root, echo_path);
 
     // Run the server until stopped.
     s.run();

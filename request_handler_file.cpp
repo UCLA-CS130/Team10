@@ -19,8 +19,9 @@
 namespace http {
 namespace server {
 
-request_handler_file::request_handler_file(const std::string& doc_root)
-  : doc_root_(doc_root)
+request_handler_file::request_handler_file(const std::string& doc_root, const std::string& echo_path)
+  : doc_root_(doc_root),
+  echo_path_(echo_path)
 {
 }
 
@@ -35,7 +36,8 @@ void request_handler_file::handle_request(const request& req, reply& rep)
     return;
   }
 
-  if (request_path == "/echo")
+  // If the request is /echo
+  if (request_path == echo_path_)
   {
     // Fill out the reply to be sent to the client.
     rep.status = reply::ok;
@@ -48,6 +50,7 @@ void request_handler_file::handle_request(const request& req, reply& rep)
     return;
   }
 
+  // Any other request is valid file serving in doc_root_
 
   // Request path must be absolute and not contain "..".
   if (request_path.empty() || request_path[0] != '/'

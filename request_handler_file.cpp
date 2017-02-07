@@ -26,6 +26,7 @@ request_handler_file::request_handler_file(const std::string& doc_root)
 
 void request_handler_file::handle_request(const request& req, reply& rep)
 {
+
   // Decode url to path.
   std::string request_path;
   if (!url_decode(req.uri, request_path))
@@ -33,6 +34,20 @@ void request_handler_file::handle_request(const request& req, reply& rep)
     rep = reply::stock_reply(reply::bad_request);
     return;
   }
+
+  if (request_path == "/echo")
+  {
+    // Fill out the reply to be sent to the client.
+    rep.status = reply::ok;
+    rep.content = req.toString();
+    rep.headers.resize(2);
+    rep.headers[0].name = "Content-Length";
+    rep.headers[0].value = std::to_string(rep.content.size());
+    rep.headers[1].name = "Content-Type";
+    rep.headers[1].value = "text/plain";
+    return;
+  }
+
 
   // Request path must be absolute and not contain "..".
   if (request_path.empty() || request_path[0] != '/'
@@ -56,6 +71,8 @@ void request_handler_file::handle_request(const request& req, reply& rep)
   {
     extension = request_path.substr(last_dot_pos + 1);
   }
+
+
 
   // Open the file to send back.
   std::string full_path = doc_root_ + request_path;

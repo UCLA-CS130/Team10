@@ -23,10 +23,11 @@ def main():
   print get_output_of_shell_command("make")
 
   # Run the webserver in the background
-  run_background_process("./webserver demo/example.conf &")
+  run_background_process("./webserver demo/nginx.conf &")
 
-  # GET the HTTP response
-  http_req = "GET http://localhost:3000"
+  # GET the HTTP response for echo
+  print "TEST ECHO SERVER\n"
+  http_req = "GET http://localhost:3000/echo"
   http_res = get_output_of_shell_command(http_req)
 
   # Print for clarity
@@ -37,9 +38,27 @@ def main():
 
   # Check for correct host and port
   if "localhost:3000" in http_res:
-    print "Success! 1 out of 1 tests passed"
+    print "Success! 1 out of 2 tests passed!"
   else:
-    print "Error, check output: \n" + http_res 
+    print "Error, check output: \n" + http_res
+    sys.exit(1)
+
+  # GET the HTTP response for index.html
+  print "TEST FILE SERVER\n"
+  http_req = "GET http://localhost:3000/"
+  http_res = get_output_of_shell_command(http_req)
+
+  # Print for clarity
+  print "HTTP request: \n"
+  print http_req + "\n\n"
+  print "HTTP response: \n"
+  print http_res
+
+  # Check for correct host and port
+  if "CS130 is the best class ever" in http_res:
+    print "Success! 2 out of 2 tests passed!\n"
+  else:
+    print "Error, check output: \n" + http_res
     sys.exit(1)
 
 
@@ -50,6 +69,7 @@ def main():
     if proc.name() == PROCNAME:
       print "Webserver process found, killing process..."
       proc.kill()
+      print "Process killed. Exiting..."
       sys.exit()
 
 

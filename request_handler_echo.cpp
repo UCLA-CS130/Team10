@@ -19,6 +19,9 @@
 namespace http {
 namespace server {
 
+request_handler_echo::request_handler_echo()
+{
+}
 
 void request_handler_echo::handle_request(const request& req, reply& rep)
 {

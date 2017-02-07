@@ -24,17 +24,17 @@ struct Server {
 };
 
 // TODO: Change to recursive if needed?
-bool parseNginxConfig(NginxConfig* config, Server* out) 
+bool parseNginxConfig(NginxConfig* config, Server* out)
 {
 
-  for ( auto statement : config->statements_ ) 
+  for ( auto statement : config->statements_ )
   {
-    for (auto token: statement->tokens_) 
+    for (auto token: statement->tokens_)
     {
       if (token == "port")
         out->params["port"] = statement->tokens_[1];
       // In the server configuration context
-      if (token == "server") 
+      if (token == "server")
       {
         // TODO: Recurse here to generate a child Server object
         // parserNginxConfig(statement->child_block_, child)
@@ -45,12 +45,12 @@ bool parseNginxConfig(NginxConfig* config, Server* out)
           int index = 0;
           for (auto& tkn : stmt->tokens_)
           {
-            if (tkn == "listen") 
+            if (tkn == "listen")
             {
               out->params["port"] = stmt->tokens_[index + 1];
             }
 
-            if (tkn == "server_name") 
+            if (tkn == "server_name")
             {
               out->params["host"] = stmt->tokens_[index + 1];
             }
@@ -108,8 +108,15 @@ int main(int argc, char* argv[])
     std::string host = "0.0.0.0";
     std::string port = server->params["port"];
     std::string root = server->params["root"];
+
+    // Use echo server
+    // if (root == "echo")
+    // {
+    //
+    // }
+
     http::server::server s(host, port, root);
-    
+
     // Run the server until stopped.
     s.run();
 

@@ -22,7 +22,7 @@ server::server(const std::string& address, const std::string& port,
     acceptor_(io_service_),
     connection_manager_(),
     new_connection_(),
-    request_handler_echo_(),
+    //request_handler_echo_(),
     request_handler_file_(doc_root)
 {
   // Register to handle the signals that indicate when the server should exit.

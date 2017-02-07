@@ -26,11 +26,12 @@ class request_handler_echo
   : public http::server::request_handler
 {
 public:
-
+  request_handler_echo(){};
   /// Handle a request and produce a reply.
   void handle_request(const request& req, reply& rep) override;
   /// Perform URL-decoding on a string. Returns false if the encoding was
   /// invalid.
+  const std::string doc_root_;
   static bool url_decode(const std::string& in, std::string& out);
 
 

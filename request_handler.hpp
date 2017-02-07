@@ -32,7 +32,7 @@ public:
   virtual void handle_request(const request& req, reply& rep) = 0;
   /// Perform URL-decoding on a string. Returns false if the encoding was
   /// invalid.
-  //virtual static bool url_decode(const std::string& in, std::string& out) = 0;
+  //virtual bool url_decode(const std::string& in, std::string& out) = 0;
 
 private:
   /// The directory containing the files to be served.

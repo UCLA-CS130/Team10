@@ -18,6 +18,7 @@
 #include "connection_manager.hpp"
 #include "request_handler_echo.hpp"
 #include "request_handler_file.hpp"
+#include "request_handler.hpp"
 
 #include "config_parser.hpp"
 
@@ -63,7 +64,7 @@ private:
   connection_ptr new_connection_;
 
   /// The handler for all incoming echo requests.
-  request_handler_echo request_handler_echo_;
+  //request_handler_echo request_handler_echo_;
 
   /// The handler for all incoming file requests.
   request_handler_file request_handler_file_;

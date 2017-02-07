@@ -4,7 +4,7 @@
 !*/
 
 #Ignore all test binaries
-unit_tests/
+unit_tests/*
 !unit_tests/*.*
 !unit_tests/*/
 

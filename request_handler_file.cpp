@@ -19,8 +19,10 @@
 namespace http {
 namespace server {
 
-request_handler_file::request_handler_file(const std::string& doc_root, const std::string& echo_path)
+request_handler_file::request_handler_file(const std::string& doc_root,
+  const std::string& static_path, const std::string& echo_path)
   : doc_root_(doc_root),
+  static_path_(static_path),
   echo_path_(echo_path)
 {
 }
@@ -50,12 +52,16 @@ void request_handler_file::handle_request(const request& req, reply& rep)
     return;
   }
 
-  // Any other request is valid file serving in doc_root_
 
   // Request path must be absolute and not contain "..".
   if (request_path.empty() || request_path[0] != '/'
       || request_path.find("..") != std::string::npos)
   {
+    rep = reply::stock_reply(reply::bad_request);
+    return;
+  }
+
+  if (request_path.substr(0,static_path_.length()) != static_path_) {
     rep = reply::stock_reply(reply::bad_request);
     return;
   }

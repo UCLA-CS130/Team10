@@ -113,9 +113,7 @@ int main(int argc, char* argv[])
     std::string static_path = server->params["static_path"];
     std::string echo_path = server->params["echo_path"];
 
-    std::cout << port << " " << root << " " << static_path << " " << echo_path << std::endl;
-
-    http::server::server s(host, port, root, echo_path);
+    http::server::server s(host, port, root, static_path, echo_path);
 
     // Run the server until stopped.
     s.run();

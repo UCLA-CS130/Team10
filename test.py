@@ -5,7 +5,9 @@ import sys
 # REQUIRES LIBRARY TO RUN
 import psutil
 
-
+ROOT_PATH = "demo/"
+ECHO_PATH = "/echo"
+STATIC_PATH = "/static/"
 
 def get_output_of_shell_command(cmd):
   p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -23,11 +25,11 @@ def main():
   print get_output_of_shell_command("make")
 
   # Run the webserver in the background
-  run_background_process("./webserver demo/nginx.conf &")
+  run_background_process("./webserver " + ROOT_PATH + "nginx.conf &")
 
   # GET the HTTP response for echo
   print "TEST ECHO SERVER\n"
-  http_req = "GET http://localhost:3000/echo"
+  http_req = "GET http://localhost:3000" + ECHO_PATH
   http_res = get_output_of_shell_command(http_req)
 
   # Print for clarity
@@ -45,7 +47,7 @@ def main():
 
   # GET the HTTP response for index.html
   print "TEST FILE SERVER\n"
-  http_req = "GET http://localhost:3000/"
+  http_req = "GET http://localhost:3000" + STATIC_PATH
   http_res = get_output_of_shell_command(http_req)
 
   # Print for clarity

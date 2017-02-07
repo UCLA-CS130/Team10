@@ -1,4 +1,4 @@
-all: clean release
+all: release
 
 CPPFLAGS+=-std=c++11 -Wall
 CPPFLAGS+=-g

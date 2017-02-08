@@ -2,6 +2,7 @@
 *
 !*.*
 !*/
+!googletest
 
 #Ignore all test binaries
 unit_tests/*

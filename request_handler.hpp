@@ -33,6 +33,8 @@ public:
   /// Perform URL-decoding on a string. Returns false if the encoding was
   /// invalid.
   //virtual bool url_decode(const std::string& in, std::string& out) = 0;
+  
+  const std::string FILESYSTEM_DIRECTORY = "./demo/static";
 
 private:
   /// The directory containing the files to be served.

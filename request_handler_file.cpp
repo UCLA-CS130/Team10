@@ -9,6 +9,7 @@
 //
 
 #include "request_handler_file.hpp"
+#include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -81,10 +82,9 @@ void request_handler_file::handle_request(const request& req, reply& rep)
     extension = request_path.substr(last_dot_pos + 1);
   }
 
-
-
   // Open the file to send back.
-  std::string full_path = doc_root_ + request_path;
+  std::string full_path = request_path;
+  boost::replace_all(full_path, static_path_, FILESYSTEM_DIRECTORY);
   std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
   if (!is)
   {

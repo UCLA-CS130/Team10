@@ -30,6 +30,16 @@ bool parseNginxConfig(NginxConfig* config, Server* out)
   {
     for (auto token: statement->tokens_)
     {
+      int i = 0;
+      if (token == "port")
+        out->params["port"] = statement->tokens_[i + 1];
+      if (token == "echo")
+        out->params["echo_path"] = statement->tokens_[i + 1];
+      if (token == "root")
+        out->params["root"] = statement->tokens_[i + 1];
+      if (token == "static")
+        out->params["static_path"] = statement->tokens_[i + 1];
+      i++;
       // In the server configuration context
       if (token == "server")
       {
@@ -116,6 +126,7 @@ int main(int argc, char* argv[])
     http::server::server s(host, port, root, static_path, echo_path);
 
     // Run the server until stopped.
+    std::cout << "The server is running on port " << port << std::endl;
     s.run();
 
     // Clean up

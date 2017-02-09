@@ -84,7 +84,7 @@ void request_handler_file::handle_request(const request& req, reply& rep)
 
   // Open the file to send back.
   std::string full_path = request_path;
-  boost::replace_all(full_path, static_path_, FILESYSTEM_DIRECTORY);
+  boost::replace_all(full_path, static_path_, doc_root_);
   std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
   if (!is)
   {

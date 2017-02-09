@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 //#include "gmock/gmock.h"
 #include "../request_handler.hpp"
+#include "../request_handler_file.hpp"
 #include "../request.hpp"
 #include "../reply.hpp"
 #include "../mime_types.hpp"
@@ -11,7 +12,7 @@
 // test fixture used in following test
 class Request_handler_Test:public::testing::Test{
 protected:
-  http::server::request_handler* rqst_hndlr_ptr;
+  http::server::request_handler_file* rqst_hndlr_ptr;
   http::server::reply rply;
   http::server::request rqst;
 
@@ -23,7 +24,7 @@ protected:
 
 
   virtual void SetUp(){
-    rqst_hndlr_ptr = new http::server::request_handler("~");
+    rqst_hndlr_ptr = new http::server::request_handler_file("~", "/static", "/echo");
   }
   virtual void TearDown(){
     delete rqst_hndlr_ptr;
@@ -50,10 +51,7 @@ TEST_F(Request_handler_Test, handle_request_Test){
 
   EXPECT_EQ(400, rply.status);
   rqst.uri = in3;
-  rqst.uri="/foo.txt";
+  rqst.uri="/static/foo.txt";
   rqst_hndlr_ptr->handle_request(rqst, rply);
   EXPECT_EQ(404, rply.status);
 }
-
-
-

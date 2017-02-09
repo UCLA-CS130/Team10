@@ -16,6 +16,8 @@
 #include <boost/noncopyable.hpp>
 #include "connection.hpp"
 #include "connection_manager.hpp"
+#include "request_handler_echo.hpp"
+#include "request_handler_file.hpp"
 #include "request_handler.hpp"
 
 #include "config_parser.hpp"
@@ -31,7 +33,8 @@ public:
   /// Construct the server to listen on the specified TCP address and port, and
   /// serve up files from the given directory.
   explicit server(const std::string& address, const std::string& port,
-      const std::string& doc_root);
+      const std::string& doc_root, const std::string& static_path,
+      const std::string& echo_path);
 
   /// Run the server's io_service loop.
   void run();
@@ -61,8 +64,13 @@ private:
   /// The next connection to be accepted.
   connection_ptr new_connection_;
 
-  /// The handler for all incoming requests.
-  request_handler request_handler_;
+  /// The handler for all incoming echo requests.
+  //request_handler_echo request_handler_echo_;
+
+  /// The handler for all incoming file requests.
+  request_handler_file request_handler_file_;
+
+
 };
 
 } // namespace server

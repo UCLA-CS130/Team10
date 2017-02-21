@@ -232,7 +232,7 @@ std::string to_string(Response::ResponseCode status)
 
 } // namespace stock_replies
 */
-void Reponse::SetStatus(const ResponseCode response_code)
+void Response::SetStatus(const ResponseCode response_code)
 {
   m_status = response_code;
 }
@@ -242,7 +242,7 @@ void Response::AddHeader(const std::string& header_name, const std::string& head
   header h;
   h.name = header_name;
   h.value = header_value;
-  m_headers.push_back(h);  
+  m_headers.push_back(h);
 }
 
 void Response::SetBody(const std::string& body)
@@ -253,7 +253,7 @@ void Response::SetBody(const std::string& body)
 std::string ToString()
 {
   std::string result_str = "";
-  
+
   // Add version and status.
   swtich(m_status){
     case ok:
@@ -292,4 +292,3 @@ std::string ToString()
   rep.headers[1].value = "text/html";
   return rep;
 }*/
-

@@ -5,10 +5,10 @@
 
 
 #include "Response.hpp"
-#include <string>
+/*#include <string>
 #include <boost/lexical_cast.hpp>
 
-/*namespace status_strings {
+namespace status_strings {
 
 const std::string ok =
   "HTTP/1.0 200 OK\r\n";

@@ -1,21 +1,14 @@
 //
-// reply.cpp
+// response.cpp
 // ~~~~~~~~~
 //
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
-#include "reply.hpp"
+
+#include "Response.hpp"
 #include <string>
 #include <boost/lexical_cast.hpp>
 
-namespace http {
-namespace server {
-
-namespace status_strings {
+/*namespace status_strings {
 
 const std::string ok =
   "HTTP/1.0 200 OK\r\n";
@@ -50,41 +43,41 @@ const std::string bad_gateway =
 const std::string service_unavailable =
   "HTTP/1.0 503 Service Unavailable\r\n";
 
-boost::asio::const_buffer to_buffer(reply::status_type status)
+boost::asio::const_buffer to_buffer(Response::ResponseCode status)
 {
   switch (status)
   {
-  case reply::ok:
+  case Response::ok:
     return boost::asio::buffer(ok);
-  case reply::created:
+  case Response::created:
     return boost::asio::buffer(created);
-  case reply::accepted:
+  case Response::accepted:
     return boost::asio::buffer(accepted);
-  case reply::no_content:
+  case Response::no_content:
     return boost::asio::buffer(no_content);
-  case reply::multiple_choices:
+  case Response::multiple_choices:
     return boost::asio::buffer(multiple_choices);
-  case reply::moved_permanently:
+  case Response::moved_permanently:
     return boost::asio::buffer(moved_permanently);
-  case reply::moved_temporarily:
+  case Response::moved_temporarily:
     return boost::asio::buffer(moved_temporarily);
-  case reply::not_modified:
+  case Response::not_modified:
     return boost::asio::buffer(not_modified);
-  case reply::bad_request:
+  case Response::bad_request:
     return boost::asio::buffer(bad_request);
-  case reply::unauthorized:
+  case Response::unauthorized:
     return boost::asio::buffer(unauthorized);
-  case reply::forbidden:
+  case Response::forbidden:
     return boost::asio::buffer(forbidden);
-  case reply::not_found:
+  case Response::not_found:
     return boost::asio::buffer(not_found);
-  case reply::internal_server_error:
+  case Response::internal_server_error:
     return boost::asio::buffer(internal_server_error);
-  case reply::not_implemented:
+  case Response::not_implemented:
     return boost::asio::buffer(not_implemented);
-  case reply::bad_gateway:
+  case Response::bad_gateway:
     return boost::asio::buffer(bad_gateway);
-  case reply::service_unavailable:
+  case Response::service_unavailable:
     return boost::asio::buffer(service_unavailable);
   default:
     return boost::asio::buffer(internal_server_error);
@@ -100,11 +93,11 @@ const char crlf[] = { '\r', '\n' };
 
 } // namespace misc_strings
 
-std::vector<boost::asio::const_buffer> reply::to_buffers()
+std::vector<boost::asio::const_buffer> Response::to_buffers()
 {
   std::vector<boost::asio::const_buffer> buffers;
   buffers.push_back(status_strings::to_buffer(status));
-  for (std::size_t i = 0; i < headers.size(); ++i)
+  for (std::size_t i = 0; i < m_headers.size(); ++i)
   {
     header& h = headers[i];
     buffers.push_back(boost::asio::buffer(h.name));
@@ -196,41 +189,41 @@ const char service_unavailable[] =
   "<body><h1>503 Service Unavailable</h1></body>"
   "</html>";
 
-std::string to_string(reply::status_type status)
+std::string to_string(Response::ResponseCode status)
 {
   switch (status)
   {
-  case reply::ok:
+  case Response::ok:
     return ok;
-  case reply::created:
+  case Response::created:
     return created;
-  case reply::accepted:
+  case Response::accepted:
     return accepted;
-  case reply::no_content:
+  case Response::no_content:
     return no_content;
-  case reply::multiple_choices:
+  case Response::multiple_choices:
     return multiple_choices;
-  case reply::moved_permanently:
+  case Response::moved_permanently:
     return moved_permanently;
-  case reply::moved_temporarily:
+  case Response::moved_temporarily:
     return moved_temporarily;
-  case reply::not_modified:
+  case Response::not_modified:
     return not_modified;
-  case reply::bad_request:
+  case Response::bad_request:
     return bad_request;
-  case reply::unauthorized:
+  case Response::unauthorized:
     return unauthorized;
-  case reply::forbidden:
+  case Response::forbidden:
     return forbidden;
-  case reply::not_found:
+  case Response::not_found:
     return not_found;
-  case reply::internal_server_error:
+  case Response::internal_server_error:
     return internal_server_error;
-  case reply::not_implemented:
+  case Response::not_implemented:
     return not_implemented;
-  case reply::bad_gateway:
+  case Response::bad_gateway:
     return bad_gateway;
-  case reply::service_unavailable:
+  case Response::service_unavailable:
     return service_unavailable;
   default:
     return internal_server_error;
@@ -238,19 +231,65 @@ std::string to_string(reply::status_type status)
 }
 
 } // namespace stock_replies
+*/
+void Reponse::SetStatus(const ResponseCode response_code)
+{
+  m_status = response_code;
+}
 
-reply reply::stock_reply(reply::status_type status)
+void Response::AddHeader(const std::string& header_name, const std::string& header_value)
+{
+  header h;
+  h.name = header_name;
+  h.value = header_value;
+  m_headers.push_back(h);  
+}
+
+void Response::SetBody(const std::string& body)
+{
+  m_body = body;
+}
+
+std::string ToString()
+{
+  std::string result_str = "";
+  
+  // Add version and status.
+  swtich(m_status){
+    case ok:
+      result_str += "HTTP/1.0 200 OK\r\n";
+      break;
+    case bad_request:
+      result_str += "HTTP/1.0 400 Bad Request\r\n";
+      break;
+    case not_found:
+      result_str += "HTTP/1.0 404 Not Found\r\n";
+      break;
+    default:
+      result_str += "HTTP/1.0 500 Internal Server Error\r\n";
+      break;
+  }
+  // Add headers.
+  for(auto it = m_headers.begin(); it != m_headers.end(); ++it) {
+    result_str += (*it).name + ": " + (*it).value + "\r\n";
+  }
+  result_str += "\r\n";
+
+  // Add body message.
+  result_str += m_body;
+
+}
+
+/*Response Response::stock_reply(reply::status_type status)
 {
   reply rep;
   rep.status = status;
-  rep.content = stock_replies::to_string(status);
+  rep.m_body = stock_replies::to_string(status);
   rep.headers.resize(2);
   rep.headers[0].name = "Content-Length";
-  rep.headers[0].value = boost::lexical_cast<std::string>(rep.content.size());
+  rep.headers[0].value = boost::lexical_cast<std::string>(rep.m_body.size());
   rep.headers[1].name = "Content-Type";
   rep.headers[1].value = "text/html";
   return rep;
-}
+}*/
 
-} // namespace server
-} // namespace http

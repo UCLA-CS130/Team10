@@ -277,7 +277,7 @@ std::string ToString()
 
   // Add body message.
   result_str += m_body;
-
+  return result_str;
 }
 
 /*Response Response::stock_reply(reply::status_type status)

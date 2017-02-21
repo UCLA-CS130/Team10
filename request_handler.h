@@ -20,11 +20,11 @@ class Request {
 
   std::string body() const;
  private:
-  std::string raw_request_;
-  std::string method_;
-  std::string uri_;
-  std::string version_;
-  std::string body_;
+  std::string m_raw_request;
+  std::string m_method;
+  std::string m_uri;
+  std::string m_version;
+  std::string m_body;
 };
 
 // Represents an HTTP response.

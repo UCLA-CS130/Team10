@@ -50,7 +50,6 @@ void connection::handle_read(const boost::system::error_code& e,
     auto request = Request::Parse(raw_request);
     Response response;
     request_handler_.HandleRequest(*request, &response);
-    std::cout << response.ToString();
     std::vector<boost::asio::const_buffer> buffers;
     buffers.push_back(boost::asio::buffer(response.ToString()));
 
@@ -109,4 +108,3 @@ std::string connection::buffer_to_string()
   std::string s(buffer_.begin(), buffer_.end());
   return s;
 }
-

@@ -5,8 +5,13 @@ ServerConfig::ServerConfig()
 
 }
 
-bool ServerConfig::Init(const NginxConfig* config)
+bool ServerConfig::Init(const char* config_file)
 {
+
+  NginxConfigParser *parser = new NginxConfigParser();
+  NginxConfig *config = new NginxConfig();
+  parser->Parse(config_file, config);
+
   for ( auto statement : config->statements_ )
   {
     for (auto token: statement->tokens_)
@@ -72,6 +77,9 @@ bool ServerConfig::Init(const NginxConfig* config)
       }
     }
   }
+
+  delete parser;
+  delete config;
   return true;
 }
 

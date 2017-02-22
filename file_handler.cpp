@@ -80,7 +80,10 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request,
   response->SetStatus(Response::ok);
   char buf[512];
   while (is.read(buf, sizeof(buf)).gcount() > 0)
+  {
+    // TODO: Need an append function instead of a set function!
     response->SetBody(buf);
+  }
   response->AddHeader("Content-Length", std::to_string(response->ContentLength()));
   response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
   return RequestHandler::OK;

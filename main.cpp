@@ -28,28 +28,15 @@ int main(int argc, char* argv[])
       return 1;
     }
 
-    // Initialise the NginxConfigParser
-    // TODO: Move this into ServerConfig
-    NginxConfigParser *parser = new NginxConfigParser();
-    NginxConfig *out_config = new NginxConfig();
-    parser->Parse(argv[1], out_config);
-
-    // TODO: Just pass in ServerConfig to the Server
     ServerConfig* server_config = new ServerConfig();
-    if (server_config->Init(out_config))
+    // Init
+    if (server_config->Init(argv[1]))
     {
       // Initialise the server.
-      std::string host = "0.0.0.0";
-      std::string port = server_config->Port();
-      std::string root = server_config->Root();
-
-      std::string static_path = server_config->Static();
-      std::string echo_path = server_config->Echo();
-
-      server s(host, port, root, static_path, echo_path);
+      server s("0.0.0.0", *server_config);
 
       // Run the server until stopped.
-      std::cout << "The server is running on port " << port << std::endl;
+      std::cout << "The server is running on port " << server_config->Port() << std::endl;
       s.run();
     }
     else
@@ -58,8 +45,6 @@ int main(int argc, char* argv[])
     }
 
     // Clean up?
-    delete parser;
-    delete out_config;
     delete server_config;
   }
   catch (std::exception& e)

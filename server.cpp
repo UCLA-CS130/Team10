@@ -13,16 +13,16 @@
 #include <signal.h>
 
 
-server::server(const std::string& address, const std::string& port,
-    const std::string& doc_root, const std::string& static_path,
-    const std::string& echo_path)
+server::server(const std::string& address, const ServerConfig& config)
   : io_service_(),
     signals_(io_service_),
     acceptor_(io_service_),
     connection_manager_(),
     new_connection_(),
-    echo_handler_()
-    //request_handler_file_(doc_root, static_path, echo_path)
+    echo_handler_(),
+    file_handler_(),
+    not_found_handler_(),
+    status_handler_()
 {
   // Register to handle the signals that indicate when the server should exit.
   // It is safe to register for the same signal multiple times in a program,
@@ -36,7 +36,7 @@ server::server(const std::string& address, const std::string& port,
 
   // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
   boost::asio::ip::tcp::resolver resolver(io_service_);
-  boost::asio::ip::tcp::resolver::query query(address, port);
+  boost::asio::ip::tcp::resolver::query query(address, config.Port());
   boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
   acceptor_.open(endpoint.protocol());
   acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
@@ -90,4 +90,3 @@ void server::handle_stop()
   acceptor_.close();
   connection_manager_.stop_all();
 }
-

@@ -17,10 +17,11 @@
 #include "connection.hpp"
 #include "connection_manager.hpp"
 #include "echo_handler.hpp"
-//#include "request_handler_file.hpp"
-#include "request_handler.hpp"
+#include "file_handler.hpp"
+#include "not_found_handler.hpp"
+#include "status_handler.hpp"
+#include "server_config.hpp"
 
-#include "config_parser.hpp"
 
 
 /// The top-level class of the HTTP server.
@@ -30,9 +31,7 @@ class server
 public:
   /// Construct the server to listen on the specified TCP address and port, and
   /// serve up files from the given directory.
-  explicit server(const std::string& address, const std::string& port,
-      const std::string& doc_root, const std::string& static_path,
-      const std::string& echo_path);
+  explicit server(const std::string& address, const ServerConfig& config);
 
   /// Run the server's io_service loop.
   void run();
@@ -68,7 +67,11 @@ private:
   /// The handler for all incoming file requests.
   EchoHandler echo_handler_;
 
+  FileHandler* file_handler_;
 
+  NotFoundHandler* not_found_handler_;
+
+  StatusHandler* status_handler_;
 };
 
 

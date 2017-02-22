@@ -46,7 +46,7 @@ public:
     service_unavailable = 503
   };
 
-  // Change status of the response. 
+  // Change status of the response.
   void SetStatus(const ResponseCode response_code);
 
   // Add a header.
@@ -57,6 +57,9 @@ public:
   
   // Convert the content of response to string.
   std::string ToString();
+
+  // Get body length
+  int ContentLength();
 
 private:
   // The response status to be included in the response.

@@ -17,10 +17,10 @@ class ServerConfig {
 public:
   ServerConfig();
   bool Init(const NginxConfig* config);
-  std::string Root();
-  std::string Port();
-  std::string Echo();
-  std::string Static();
+  std::string Root() const;
+  std::string Port() const;
+  std::string Echo() const;
+  std::string Static() const;
 
 
 private:

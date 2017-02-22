@@ -278,6 +278,11 @@ std::string Response::ToString()
   return result_str;
 }
 
+int Response::ContentLength()
+{
+  return (int) sizeof(m_body);
+}
+
 /*Response Response::stock_reply(reply::status_type status)
 {
   reply rep;

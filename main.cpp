@@ -22,7 +22,6 @@ int main(int argc, char* argv[])
 {
   try
   {
-
     if (argc != 2)
     {
       std::cerr << "Usage: ./webserver /path/to/config/file\n";
@@ -30,10 +29,12 @@ int main(int argc, char* argv[])
     }
 
     // Initialise the NginxConfigParser
+    // TODO: Move this into ServerConfig
     NginxConfigParser *parser = new NginxConfigParser();
     NginxConfig *out_config = new NginxConfig();
-
     parser->Parse(argv[1], out_config);
+
+    // TODO: Just pass in ServerConfig to the Server
     ServerConfig* server_config = new ServerConfig();
     if (server_config->Init(out_config))
     {
@@ -56,7 +57,7 @@ int main(int argc, char* argv[])
       std::cout << "failed." << std::endl;
     }
 
-    // Clean up
+    // Clean up?
     delete parser;
     delete out_config;
     delete server_config;

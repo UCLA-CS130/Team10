@@ -75,23 +75,23 @@ bool ServerConfig::Init(const NginxConfig* config)
   return true;
 }
 
-std::string ServerConfig::Root()
+std::string ServerConfig::Root() const
 {
   // TODO: error handling
-  return m_params["root"];
+  return m_params.at("root");
 }
 
-std::string ServerConfig::Port()
+std::string ServerConfig::Port() const
 {
-  return m_params["port"];
+  return m_params.at("port");
 }
 
-std::string ServerConfig::Echo()
+std::string ServerConfig::Echo() const
 {
-  return m_params["echo_path"];
+  return m_params.at("echo_path");
 }
 
-std::string ServerConfig::Static()
+std::string ServerConfig::Static() const
 {
-  return m_params["static_path"];
+  return m_params.at("static_path");
 }

@@ -16,14 +16,12 @@
 #include <boost/noncopyable.hpp>
 #include "connection.hpp"
 #include "connection_manager.hpp"
-#include "request_handler_echo.hpp"
-#include "request_handler_file.hpp"
+#include "echo_handler.hpp"
+//#include "request_handler_file.hpp"
 #include "request_handler.hpp"
 
 #include "config_parser.hpp"
 
-namespace http {
-namespace server {
 
 /// The top-level class of the HTTP server.
 class server
@@ -68,12 +66,10 @@ private:
   //request_handler_echo request_handler_echo_;
 
   /// The handler for all incoming file requests.
-  request_handler_file request_handler_file_;
+  EchoHandler echo_handler_;
 
 
 };
 
-} // namespace server
-} // namespace http
 
 #endif // HTTP_SERVER_HPP

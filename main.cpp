@@ -110,20 +110,20 @@ int main(int argc, char* argv[])
     NginxConfig *out_config = new NginxConfig();
 
     parser->Parse(argv[1], out_config);
-    Server* server = new Server();
-    parseNginxConfig(out_config, server );
+    Server* server_param = new Server();
+    parseNginxConfig(out_config, server_param);
 
     //TODO: Determine echo server or file server
 
     // Initialise the server.
     std::string host = "0.0.0.0";
-    std::string port = server->params["port"];
-    std::string root = server->params["root"];
+    std::string port = server_param->params["port"];
+    std::string root = server_param->params["root"];
 
-    std::string static_path = server->params["static_path"];
-    std::string echo_path = server->params["echo_path"];
+    std::string static_path = server_param->params["static_path"];
+    std::string echo_path = server_param->params["echo_path"];
 
-    http::server::server s(host, port, root, static_path, echo_path);
+    server s(host, port, root, static_path, echo_path);
 
     // Run the server until stopped.
     std::cout << "The server is running on port " << port << std::endl;
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
     // Clean up
     delete parser;
     delete out_config;
-    delete server;
+    delete server_param;
   }
   catch (std::exception& e)
   {

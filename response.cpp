@@ -239,10 +239,8 @@ void Response::SetStatus(const ResponseCode response_code)
 
 void Response::AddHeader(const std::string& header_name, const std::string& header_value)
 {
-  header h;
-  h.name = header_name;
-  h.value = header_value;
-  m_headers.push_back(h);
+  std::pair<std::string, std::string> header(header_name, header_value);
+  m_headers.push_back(header);
 }
 
 void Response::SetBody(const std::string& body)
@@ -250,12 +248,12 @@ void Response::SetBody(const std::string& body)
   m_body = body;
 }
 
-std::string ToString()
+std::string Response::ToString()
 {
   std::string result_str = "";
 
   // Add version and status.
-  swtich(m_status){
+  switch(m_status){
     case ok:
       result_str += "HTTP/1.0 200 OK\r\n";
       break;
@@ -271,7 +269,7 @@ std::string ToString()
   }
   // Add headers.
   for(auto it = m_headers.begin(); it != m_headers.end(); ++it) {
-    result_str += (*it).name + ": " + (*it).value + "\r\n";
+    result_str += (*it).first + ": " + (*it).second + "\r\n";
   }
   result_str += "\r\n";
 

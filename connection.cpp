@@ -14,11 +14,9 @@
 #include "connection_manager.hpp"
 #include "request_handler.hpp"
 
-namespace http {
-namespace server {
 
 connection::connection(boost::asio::io_service& io_service,
-    connection_manager& manager, request_handler& handler)
+    connection_manager& manager, RequestHandler& handler)
   : socket_(io_service),
     connection_manager_(manager),
     request_handler_(handler)
@@ -48,7 +46,18 @@ void connection::handle_read(const boost::system::error_code& e,
 {
   if (!e)
   {
-    boost::tribool result;
+    std::string raw_request = buffer_to_string();
+    auto request = Request::Parse(raw_request);
+    Response response;
+    request_handler_.HandleRequest(*request, &response);
+    std::cout << response.ToString();
+    std::vector<boost::asio::const_buffer> buffers;
+    buffers.push_back(boost::asio::buffer(response.ToString()));
+
+    boost::asio::async_write(socket_, buffers,
+          boost::bind(&connection::handle_write, shared_from_this(),
+            boost::asio::placeholders::error));
+    /*boost::tribool result;
     boost::tie(result, boost::tuples::ignore) = request_parser_.parse(
         request_, buffer_.data(), buffer_.data() + bytes_transferred);
 
@@ -72,7 +81,7 @@ void connection::handle_read(const boost::system::error_code& e,
           boost::bind(&connection::handle_read, shared_from_this(),
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
-    }
+    }*/
   }
   else if (e != boost::asio::error::operation_aborted)
   {
@@ -95,5 +104,9 @@ void connection::handle_write(const boost::system::error_code& e)
   }
 }
 
-} // namespace server
-} // namespace http
+std::string connection::buffer_to_string()
+{
+  std::string s(buffer_.begin(), buffer_.end());
+  return s;
+}
+

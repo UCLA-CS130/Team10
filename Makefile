@@ -12,9 +12,9 @@ GTEST_DIR=googletest/googletest
 
 TESTS=unit_tests/config_parser_test unit_tests/request_test unit_tests/request_handler_file_test unit_tests/request_parser_test unit_tests/reply_test unit_tests/connection_manager_test unit_tests/mime_types_test unit_tests/connection_test
 
-TEST_CLASSES=config_parser.cpp connection.cpp connection_manager.cpp mime_types.cpp reply.cpp request_handler_file.cpp request_parser.cpp server.cpp
+TEST_CLASSES=config_parser.cpp connection.cpp connection_manager.cpp mime_types.cpp response.cpp echo_handler.cpp server.cpp request.cpp
 
-CLASSES=config_parser.o connection.o connection_manager.o main.o mime_types.o reply.o request_handler_file.o request_handler_file.o request_parser.o server.o
+CLASSES=config_parser.o connection.o connection_manager.o main.o mime_types.o response.o echo_handler.o server.o request.o
 
 .PHONY: clean test release
 

@@ -1,31 +1,75 @@
 #include "request.hpp"
 
-namespace http {
-namespace server {
 
-request_parser::request_parser()
-  : m_state(method_start)
+
+Request::Request()
+  //: m_state(method_start)
 {
 }
-
-void request_parser::reset()
+/*
+void Request::reset()
 {
   m_state = method_start;
 }
 
 
-bool request_parser::isStart()
+bool Request::isStart()
 {
   return m_state == method_start;
 }
-
+*/
 std::unique_ptr<Request> Request::Parse(const std::string& raw_request)
 {
   //TODO: Parse will use consume() to handle the raw_request character by character
+  std::unique_ptr<Request> req(new Request());
+  req->m_raw_request = raw_request;
 
+  int space_count = 0;
+  std::string method = "";
+  std::string url = "";
+  std::string version = "";
+
+  for(unsigned int i = 0; i < raw_request.size(); i++){
+    if(raw_request[i] == '\r')
+      break;
+    if(raw_request[i] == ' '){
+      //TODO: error handling
+      space_count++;
+      continue;
+    }
+
+    switch(space_count){
+      case 0:
+        method += raw_request[i];
+        break;
+      case 1:
+        url += raw_request[i];
+        break;
+      case 2:
+        version += raw_request[i];
+        break;
+      default:
+      // TODO: error handling
+      break;
+    }
+  }
+  if (method != "GET" && method != "POST") {
+      //TODO: error handling
+  }
+  if (version != "HTTP/1.0" && version != "HTTP/1.1") {
+    //TODO: error handling
+  }
+  if (url.size() < 1){
+    //TODO: error handling
+    //req->m_error = 400;
+  }
+  req->m_method = method;
+  req->m_uri = url;
+  req->m_version = version;
+  return req;
 }
-
-boost::tribool request::consume(std::unique_ptr& req, char input)
+/*
+boost::tribool Request::consume(std::unique_ptr& req, char input)
 {
 
   // TODO: test consume with Parse method
@@ -201,6 +245,7 @@ boost::tribool request::consume(std::unique_ptr& req, char input)
     /// TODO: Headers
   }
 }
+*/
 
 std::string Request::raw_request() const
 {
@@ -222,6 +267,7 @@ std::string Request::version() const
   return m_version;
 }
 
+using Headers = std::vector<std::pair<std::string, std::string>>;
 Headers Request::headers() const
 {
   return m_headers;
@@ -234,18 +280,18 @@ std::string Request::body() const
 
 
 // character validators
-
-bool request_parser::is_char(int c)
+/*
+bool Request::is_char(int c)
 {
   return c >= 0 && c <= 127;
 }
 
-bool request_parser::is_ctl(int c)
+bool Request::is_ctl(int c)
 {
   return (c >= 0 && c <= 31) || (c == 127);
 }
 
-bool request_parser::is_tspecial(int c)
+bool Request::is_tspecial(int c)
 {
   switch (c)
   {
@@ -259,10 +305,7 @@ bool request_parser::is_tspecial(int c)
   }
 }
 
-bool request_parser::is_digit(int c)
+bool Request::is_digit(int c)
 {
   return c >= '0' && c <= '9';
-}
-
-} // namespace server
-} // namespace http
+}*/

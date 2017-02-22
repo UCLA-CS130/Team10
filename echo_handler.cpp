@@ -1,29 +1,38 @@
 //
-// request_handler.cpp
+// echo_handler.cpp
 // ~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
-#include "request_handler_echo.hpp"
+#include "echo_handler.hpp"
 #include <fstream>
 #include <sstream>
-#include <string>
-#include <boost/lexical_cast.hpp>
-#include "reply.hpp"
-#include "request.hpp"
+//#include <string>
+//#include <boost/lexical_cast.hpp>
+//#include "response.hpp"
+//#include "request.hpp"
 
-namespace http {
-namespace server {
-
-request_handler_echo::request_handler_echo()
+EchoHandler::EchoHandler()
 {
+
 }
 
-void request_handler_echo::handle_request(const request& req, reply& rep)
+RequestHandler::Status EchoHandler::Init(const std::string& uri_prefix,
+                      const NginxConfig& config)
+{
+  return RequestHandler::OK;
+}
+
+RequestHandler::Status EchoHandler::HandleRequest(const Request& request,
+                               Response* response)
+{
+  response->SetStatus(Response::ok);
+  response->AddHeader("Content-Length", std::to_string(request.raw_request().size()));
+  response->AddHeader("Content-Type", "text/plain"); 
+  response->SetBody(request.raw_request());
+  return RequestHandler::OK;
+}
+
+/*void request_handler_echo::handle_request(const request& req, reply& rep)
 {
   // Decode url to path.
   std::string request_path;
@@ -90,6 +99,4 @@ bool request_handler_echo::url_decode(const std::string& in, std::string& out)
   }
   return true;
 }
-
-} // namespace server
-} // namespace http
+*/

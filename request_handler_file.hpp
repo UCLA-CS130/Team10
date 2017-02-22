@@ -14,8 +14,7 @@
 #include <string>
 #include "request_handler.hpp"
 
-namespace http {
-namespace server {
+
 
 struct reply;
 struct request;
@@ -42,7 +41,5 @@ private:
   std::string echo_path_;
 };
 
-} // namespace server
-} // namespace http
 
 #endif // HTTP_REQUEST_HANDLER_FILE_HPP

@@ -9,6 +9,8 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+
 
 
 /// A request received from a client.
@@ -19,14 +21,15 @@ public:
   // Construct request
   Request();
   /// Reset to initial parser state.
-  void reset();
+  /*void reset();
   bool isStart();
 
-  static unique_ptr<Request> Parse(const std::string& raw_request);
+  
 
   /// Consume next input character
   boost::tribool consume(const std::string& raw_request, char input);
-
+*/
+  static std::unique_ptr<Request> Parse(const std::string& raw_request);
   std::string raw_request() const;
   std::string method() const;
   std::string uri() const;
@@ -41,11 +44,12 @@ private:
   std::string m_method;
   std::string m_uri;
   std::string m_version;
+  std::string m_body;
   Headers m_headers;
 
 
   /// Check if a byte is an HTTP character.
-  static bool is_char(int c);
+  /*static bool is_char(int c);
 
   /// Check if a byte is an HTTP control character.
   static bool is_ctl(int c);
@@ -79,27 +83,7 @@ private:
     header_value,
     expecting_newline_2,
     expecting_newline_3
-  } m_state;
-
-  /*std::string toString() const{
-    std::string result = "";
-    result += method;
-    result += " ";
-    result += uri;
-    result += " HTTP/";
-    result += std::to_string(http_version_major);
-    result += ".";
-    result += std::to_string(http_version_minor);
-    result += "\r\n";
-    for (const auto& header : headers) {
-        result += header.name;
-        result += ": ";
-        result += header.value;
-        result += "\r\n";
-    }
-    result += "\r\n";
-    return result;
-  }*/
+  } m_state;*/
 };
 
 

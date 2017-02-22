@@ -8,15 +8,19 @@
 #define HTTP_REQUEST_HANDLER_HPP
 
 #include <string>
+#include "config_parser.hpp"
+#include "response.hpp"
+#include "request.hpp"
 
 
 // Represents the parent of all request handlers. Implementations should expect to
 // be long lived and created at server constrution.
-class request_handler
+class RequestHandler
 {
 public:
   enum Status {
-    OK = 0;
+    OK = 0,
+    INVALID = 1
     // Define your status codes here.
   };
   

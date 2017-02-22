@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 #include <boost/asio.hpp>
-#include "header.hpp"
 
 
 // Represents an HTTP response.
@@ -64,7 +63,7 @@ private:
   ResponseCode m_status;
 
   /// The headers to be included in the response.
-  std::vector<header> m_headers;
+  std::vector<std::pair<std::string, std::string>> m_headers;
 
   /// The body to be sent in the response.
   std::string m_body;

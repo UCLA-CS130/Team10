@@ -63,7 +63,8 @@ private:
   RequestHandler& request_handler_;
 
   /// Buffer for incoming data.
-  boost::array<char, 8192> buffer_;
+  //boost::array<char, 8192> buffer_;
+  boost::asio::streambuf buffer;
 
   /// The incoming request.
   Request request_;

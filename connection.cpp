@@ -13,6 +13,8 @@
 #include <boost/bind.hpp>
 #include "connection_manager.hpp"
 #include "request_handler.hpp"
+#include <iostream>
+
 
 
 connection::connection(boost::asio::io_service& io_service,
@@ -30,7 +32,7 @@ boost::asio::ip::tcp::socket& connection::socket()
 
 void connection::start()
 {
-  socket_.async_read_some(boost::asio::buffer(buffer_),
+  boost::asio::async_read_until(socket_, buffer, "\r\n\r\n",
       boost::bind(&connection::handle_read, shared_from_this(),
         boost::asio::placeholders::error,
         boost::asio::placeholders::bytes_transferred));
@@ -50,12 +52,16 @@ void connection::handle_read(const boost::system::error_code& e,
     auto request = Request::Parse(raw_request);
     Response response;
     request_handler_.HandleRequest(*request, &response);
-    std::vector<boost::asio::const_buffer> buffers;
-    buffers.push_back(boost::asio::buffer(response.ToString()));
+    boost::asio::streambuf out_streambuf;
+    std::ostream out(&out_streambuf);
+    out << response.ToString();
+    //std::vector<boost::asio::const_buffer> buffers;
+    //buffers.push_back(boost::asio::buffer(response.ToString()));
 
-    boost::asio::async_write(socket_, buffers,
+    boost::asio::async_write(socket_, out_streambuf,
           boost::bind(&connection::handle_write, shared_from_this(),
             boost::asio::placeholders::error));
+
     /*boost::tribool result;
     boost::tie(result, boost::tuples::ignore) = request_parser_.parse(
         request_, buffer_.data(), buffer_.data() + bytes_transferred);
@@ -105,6 +111,11 @@ void connection::handle_write(const boost::system::error_code& e)
 
 std::string connection::buffer_to_string()
 {
-  std::string s(buffer_.begin(), buffer_.end());
+  //std::string s(buffer_.begin(), buffer_.end());
+  //std::string s(buffer.begin(), buffer.end());
+  std::string s{
+    buffers_begin(buffer.data()),
+    buffers_end(buffer.data())
+  };
   return s;
 }

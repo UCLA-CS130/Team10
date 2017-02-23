@@ -65,13 +65,14 @@ private:
   //request_handler_echo request_handler_echo_;
 
   /// The handler for all incoming file requests.
-  EchoHandler echo_handler_;
+  ServerConfig config_;
+  /*EchoHandler echo_handler_;
 
   FileHandler* file_handler_;
 
   NotFoundHandler* not_found_handler_;
 
-  StatusHandler* status_handler_;
+  StatusHandler* status_handler_;*/
 };
 
 

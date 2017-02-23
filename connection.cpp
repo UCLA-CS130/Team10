@@ -18,10 +18,11 @@
 
 
 connection::connection(boost::asio::io_service& io_service,
-    connection_manager& manager, RequestHandler& handler)
+    connection_manager& manager, HandlerMap handler_map)
   : socket_(io_service),
     connection_manager_(manager),
-    request_handler_(handler)
+    handler_map_(handler_map)
+    //request_handler_(handler)
 {
 }
 
@@ -32,6 +33,7 @@ boost::asio::ip::tcp::socket& connection::socket()
 
 void connection::start()
 {
+  std::cout << "Start to async read...\n";
   boost::asio::async_read_until(socket_, buffer, "\r\n\r\n",
       boost::bind(&connection::handle_read, shared_from_this(),
         boost::asio::placeholders::error,
@@ -50,14 +52,18 @@ void connection::handle_read(const boost::system::error_code& e,
   {
     std::string raw_request = buffer_to_string();
     auto request = Request::Parse(raw_request);
+    //todo:  error catch
+    std::shared_ptr<RequestHandler> handler_ptr = handler_map_[request->uri()];
+    if(handler_ptr != NULL)
+      std::cout<<"Start to handle request...\n";
     Response response;
-    request_handler_.HandleRequest(*request, &response);
+    handler_ptr->HandleRequest(*request, &response);
     boost::asio::streambuf out_streambuf;
     std::ostream out(&out_streambuf);
     out << response.ToString();
     //std::vector<boost::asio::const_buffer> buffers;
     //buffers.push_back(boost::asio::buffer(response.ToString()));
-
+    std::cout << "Start to asycn write...\n";
     boost::asio::async_write(socket_, out_streambuf,
           boost::bind(&connection::handle_write, shared_from_this(),
             boost::asio::placeholders::error));

@@ -1,4 +1,5 @@
 #include "server_config.hpp"
+#include "echo_handler.hpp"
 
 ServerConfig::ServerConfig()
 {
@@ -17,17 +18,35 @@ bool ServerConfig::Init(const char* config_file)
     for (auto token: statement->tokens_)
     {
       int i = 0;
-      if (token == "port")
-        m_params["port"] = statement->tokens_[i + 1];
-      if (token == "echo")
-        m_params["echo_path"] = statement->tokens_[i + 1];
-      if (token == "root")
-        m_params["root"] = statement->tokens_[i + 1];
-      if (token == "static")
-        m_params["static_path"] = statement->tokens_[i + 1];
+      if (token == "port" && statement->tokens_.size() == 2)
+        m_port = statement->tokens_[i + 1];
+      if (token == "path" && statement->tokens_.size() == 3){
+        //TODO: get uriprefix and create a handler
+        std::string uri_prefix = statement->tokens_[i + 1];
+        //std::string handler_name = statement->tokens_[i + 2];
+        if(statement->child_block_->statements_.size() == 0){
+          //TODO: create echo handler
+          std::shared_ptr<RequestHandler> handler_ptr (new EchoHandler());
+          m_handler_map[uri_prefix] = std::move(handler_ptr);
+        }
+        else{
+          //TODO: create file handler
+          //std::shared_ptr<RequestHandler> handler_ptr (new StaticHandler());
+          //m_handler_map[uri_prefix] = std::move(handler_ptr);
+        }
+      }
+      if (token == "default" && statement->tokens_.size() == 2){
+        //TODO: get urlprefix and create a NotFound Handler
+        std::string uri_prefix = statement->tokens_[i + 1];
+        //std::string handler_name = statement->tokens_[i + 2];
+        //m_params["root"] = statement->tokens_[i + 1];
+      }
+
+      //if (token == "static")
+        //m_params["static_path"] = statement->tokens_[i + 1];
       i++;
       // In the server configuration context
-      if (token == "server")
+      /*if (token == "server")
       {
         // Open NginxConfig object
         NginxConfig* serverConfig = statement->child_block_.get();
@@ -74,7 +93,7 @@ bool ServerConfig::Init(const char* config_file)
             index++;
           }
         }
-      }
+      }*/
     }
   }
 
@@ -83,23 +102,14 @@ bool ServerConfig::Init(const char* config_file)
   return true;
 }
 
-std::string ServerConfig::Root() const
-{
-  // TODO: error handling
-  return m_params.at("root");
-}
 
 std::string ServerConfig::Port() const
 {
-  return m_params.at("port");
+  return m_port;
 }
 
-std::string ServerConfig::Echo() const
-{
-  return m_params.at("echo_path");
-}
 
-std::string ServerConfig::Static() const
+HandlerMap ServerConfig::Handler_map() const
 {
-  return m_params.at("static_path");
+  return m_handler_map;
 }

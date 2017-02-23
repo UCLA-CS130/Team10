@@ -13,16 +13,18 @@
 #include <signal.h>
 
 
+
 server::server(const std::string& address, const ServerConfig& config)
   : io_service_(),
     signals_(io_service_),
     acceptor_(io_service_),
     connection_manager_(),
     new_connection_(),
-    echo_handler_(),
+    config_(config)
+    /*echo_handler_(),
     file_handler_(),
     not_found_handler_(),
-    status_handler_()
+    status_handler_()*/
 {
   // Register to handle the signals that indicate when the server should exit.
   // It is safe to register for the same signal multiple times in a program,
@@ -59,7 +61,7 @@ void server::start_accept()
 {
   // TODO: Feed correct request_handers under different situation.
   new_connection_.reset(new connection(io_service_,
-        connection_manager_, echo_handler_));
+        connection_manager_, config_.Handler_map()));
   acceptor_.async_accept(new_connection_->socket(),
       boost::bind(&server::handle_accept, this,
         boost::asio::placeholders::error));

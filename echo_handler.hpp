@@ -25,5 +25,5 @@ public:
                                Response* response);
 };
 
-
+REGISTER_REQUEST_HANDLER(EchoHandler);
 #endif // ECHO_HANDLER_HPP

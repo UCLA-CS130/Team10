@@ -5,18 +5,17 @@
 #include "request_handler.hpp"
 #include "request.hpp"
 #include "response.hpp"
-
 #include "server_config.hpp"
 
 
 /// The common handler for all incoming requests.
-class FileHandler
+class StaticHandler
   : public RequestHandler
 {
 public:
-  FileHandler();
+  StaticHandler();
   Status Init(const std::string& uri_prefix,
-                      const ServerConfig& config);
+                      const NginxConfig& config);
   Status HandleRequest(const Request& request,
                                Response* response);
 
@@ -30,4 +29,5 @@ private:
 };
 
 
+REGISTER_REQUEST_HANDLER(StaticHandler);
 #endif // FILE_HANDLER_HPP

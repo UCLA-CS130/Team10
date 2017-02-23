@@ -7,25 +7,33 @@
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <sstream>
-
 #include "mime_types.hpp"
 
-FileHandler::FileHandler()
+
+StaticHandler::StaticHandler()
 {
 
 }
 
-RequestHandler::Status FileHandler::Init(const std::string& uri_prefix,
-                      const ServerConfig& config)
+RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix,
+                      const NginxConfig& config)
 {
   m_uri_prefix = uri_prefix;
-  m_static_path = config.Static();
+  for ( auto statement : config.statements_ )
+  {
+    for (auto token: statement->tokens_)
+    {
+      if (token == "root" && statement->tokens_.size()==2)
+        m_static_path= statement->tokens_[1];
+    }
+  }
   return RequestHandler::OK;
 }
 
-RequestHandler::Status FileHandler::HandleRequest(const Request& request,
+RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
                                Response* response)
 {
+  
   // Decode url to path.
   std::string request_path;
   if (!url_decode(request.uri(), request_path))
@@ -34,6 +42,7 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request,
     //response = reply::stock_reply(reply::bad_request);
     return RequestHandler::OK;
   }
+
 
   // Request path must be absolute and not contain "..".
   if (request_path.empty() || request_path[0] != '/'
@@ -44,15 +53,18 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request,
     return RequestHandler::OK;
   }
 
+
   if (request_path.substr(0,m_static_path.length()) != m_static_path) {
     // TODO:
     //rep = reply::stock_reply(reply::bad_request);
     return RequestHandler::OK;
   }
-
+  std::cout << "in FileHandler HandleRequest...";
+/*
   // If path ends in slash (i.e. is a directory) then add "index.html".
   if (request_path[request_path.size() - 1] == '/')
   {
+    request_path += m_static_path;
     request_path += "index.html";
   }
 
@@ -86,11 +98,12 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request,
   }
   response->AddHeader("Content-Length", std::to_string(response->ContentLength()));
   response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
+  */
   return RequestHandler::OK;
 }
 
 
-bool FileHandler::url_decode(const std::string& in, std::string& out)
+bool StaticHandler::url_decode(const std::string& in, std::string& out)
 {
   out.clear();
   out.reserve(in.size());

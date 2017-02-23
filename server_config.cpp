@@ -1,6 +1,8 @@
 #include "server_config.hpp"
 #include "echo_handler.hpp"
 #include "not_found_handler.hpp"
+#include "file_handler.hpp"
+#include <iostream> // debug purpose
 
 ServerConfig::ServerConfig()
 {
@@ -18,35 +20,33 @@ bool ServerConfig::Init(const char* config_file)
   {
     for (auto token: statement->tokens_)
     {
-      int i = 0;
       if (token == "port" && statement->tokens_.size() == 2)
-        m_port = statement->tokens_[i + 1];
+        m_port = statement->tokens_[1];
       if (token == "path" && statement->tokens_.size() == 3){
-  
-        std::string uri_prefix = statement->tokens_[i + 1];
-        //std::string handler_name = statement->tokens_[i + 2];
-        if(statement->child_block_->statements_.size() == 0){
-          //TODO: create echo handler
-          std::shared_ptr<RequestHandler> handler_ptr (new EchoHandler());
-          m_handler_map[uri_prefix] = std::move(handler_ptr);
-        }
-        else{
-          //TODO: create file handler
-          //std::shared_ptr<RequestHandler> handler_ptr (new StaticHandler());
-          //m_handler_map[uri_prefix] = std::move(handler_ptr);
-        }
+        // TODO: catch exception
+
+        std::string uri_prefix = statement->tokens_[1];
+        std::string handler_name = statement->tokens_[2];
+        std::cout << uri_prefix << '\n'<< handler_name << '\n';
+        auto raw_handler_ptr = RequestHandler::CreateByName(handler_name.c_str());
+        std::shared_ptr<RequestHandler> handler_ptr (raw_handler_ptr);
+        handler_ptr->Init(uri_prefix, *(statement->child_block_));
+        m_handler_map[uri_prefix] = std::move(handler_ptr);
       }
       if (token == "default" && statement->tokens_.size() == 2){
-        //TODO: get urlprefix and create a NotFound Handler
-        std::string uri_prefix = statement->tokens_[i + 1];
-        //std::string handler_name = statement->tokens_[i + 2];
-        std::shared_ptr<RequestHandler> handler_ptr (new NotFoundHandler());
-        m_handler_map[""] = std::move(handler_ptr);
+        //TODO: catech exception
+        
+        std::string uri_prefix = statement->tokens_[1];
+        std::string handler_name = "";
+        auto raw_handler_ptr = RequestHandler::CreateByName("NotFoundHandler");
+        std::shared_ptr<RequestHandler> handler_ptr (raw_handler_ptr);
+        handler_ptr->Init(uri_prefix, *(statement->child_block_));
+        m_handler_map[handler_name] = std::move(handler_ptr);
       }
 
       //if (token == "static")
         //m_params["static_path"] = statement->tokens_[i + 1];
-      i++;
+     
       // In the server configuration context
       /*if (token == "server")
       {

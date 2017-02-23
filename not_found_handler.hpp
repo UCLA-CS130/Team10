@@ -21,5 +21,5 @@ public:
 
 };
 
-
+REGISTER_REQUEST_HANDLER(NotFoundHandler);
 #endif // NOT_FOUND_HANDLER_HPP

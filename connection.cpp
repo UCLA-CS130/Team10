@@ -2,19 +2,12 @@
 // connection.cpp
 // ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
 #include "connection.hpp"
 #include <vector>
 #include <boost/bind.hpp>
 #include "connection_manager.hpp"
 #include "request_handler.hpp"
 #include <iostream>
-
 
 
 connection::connection(boost::asio::io_service& io_service,
@@ -52,14 +45,15 @@ void connection::handle_read(const boost::system::error_code& e,
   {
     std::string raw_request = buffer_to_string();
     auto request = Request::Parse(raw_request);
-    //std::cout << request->uri();
     std::string key_to_use = find_key(request->uri());
-    //std::cout << "url is " << request->uri() << '\n' << "key to use is " << key_to_use <<'\n';
     std::shared_ptr<RequestHandler> handler_ptr = handler_map_[key_to_use];
     if(handler_ptr == NULL)
       handler_ptr = handler_map_[""];
     Response response;
-    handler_ptr->HandleRequest(*request, &response);
+    if(handler_ptr->HandleRequest(*request, &response) == RequestHandler::INVALID){
+      std::cerr << "Cannot handle request...\n";
+      // TODO: catch this error
+    }
     boost::asio::streambuf out_streambuf;
     std::ostream out(&out_streambuf);
     out << response.ToString();

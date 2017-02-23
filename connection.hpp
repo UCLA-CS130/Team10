@@ -45,8 +45,14 @@ public:
   void stop();
 
 private:
+  // find if request_url has the pattern which is key to uri-handler map
+  // if so, return key
+  // otherwise, return ""
   std::string find_key(std::string request_url) const;
+
+  // Convert buffer to string
   std::string buffer_to_string();
+
   /// Handle completion of a read operation.
   void handle_read(const boost::system::error_code& e,
       std::size_t bytes_transferred);
@@ -69,13 +75,13 @@ private:
   boost::asio::streambuf buffer;
 
   /// The incoming request.
-  Request request_;
+  //Request request_;
 
   /// The parser for the incoming request.
   //request_parser request_parser_;
 
   /// The reply to be sent back to the client.
-  Response reply_;
+  //Response reply_;
 };
 
 typedef boost::shared_ptr<connection> connection_ptr;

@@ -25,6 +25,8 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix,
     {
       if (token == "root" && statement->tokens_.size()==2)
         m_static_path= statement->tokens_[1];
+      else
+        return RequestHandler::INVALID;
     }
   }
   return RequestHandler::OK;
@@ -38,9 +40,9 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   std::string request_path;
   if (!url_decode(request.uri(), request_path))
   {
-    // TODO: make the line below work again please.
     //response = reply::stock_reply(reply::bad_request);
-    return RequestHandler::OK;
+    std::cerr << "Invalid url\n";
+    return RequestHandler::INVALID;
   }
 
 
@@ -48,18 +50,15 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   if (request_path.empty() || request_path[0] != '/'
       || request_path.find("..") != std::string::npos)
   {
-    // TODO:
     // response = reply::stock_reply(reply::bad_request);
-    return RequestHandler::OK;
+    std::cerr << "Request path must be absolute and should not contain \"..\"\n";
+    return RequestHandler::INVALID;
   }
 
-
+  // This case may never happen. It is catched by NotFoundHandler
   if (request_path.substr(0,m_uri_prefix.length()) != m_uri_prefix) {
-    // TODO:
     //rep = reply::stock_reply(reply::bad_request);
-    //std::cout << request_path<<'\n';
-    //std::cout << m_static_path<<'\n';
-    return RequestHandler::OK;
+    return RequestHandler::INVALID;
   }
   
 
@@ -81,26 +80,25 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   // Open the file to send back.
   std::string full_path = request_path;
   boost::replace_all(full_path, m_uri_prefix, m_static_path);
-  std::cout << "m_static_path is " << m_static_path << '\n' << "m_uri_prefix is " << m_uri_prefix <<'\n'<< "full path is " << full_path << '\n';
   std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
   if (!is)
   {
-    // TODO:
     // rep = reply::stock_reply(reply::not_found);
-    std::cerr<<"Cannot open file...\n";
-    return RequestHandler::OK;
+    std::cerr << "Cannot open file \"" << full_path << "\"...\n";
+    return RequestHandler::INVALID;
   }
 
-  std::cout << "Start to read the file...\n";
-  response->SetStatus(Response::ok);
+  std::cout << "Start reading the file...\n";
+
   char buf[512];
+  std::string to_send;
+  // May not work with a large file
   while (is.read(buf, sizeof(buf)).gcount() > 0)
   {
-    // TODO: Need an append function instead of a set function!
-    std::string to_send;
     to_send.append(buf, is.gcount());
-    response->SetBody(to_send);
   }
+  response->SetBody(to_send);
+  response->SetStatus(Response::ok);
   response->AddHeader("Content-Length", std::to_string(response->ContentLength()));
   response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
   return RequestHandler::OK;

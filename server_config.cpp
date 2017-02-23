@@ -1,5 +1,6 @@
 #include "server_config.hpp"
 #include "echo_handler.hpp"
+#include "not_found_handler.hpp"
 
 ServerConfig::ServerConfig()
 {
@@ -21,7 +22,7 @@ bool ServerConfig::Init(const char* config_file)
       if (token == "port" && statement->tokens_.size() == 2)
         m_port = statement->tokens_[i + 1];
       if (token == "path" && statement->tokens_.size() == 3){
-        //TODO: get uriprefix and create a handler
+  
         std::string uri_prefix = statement->tokens_[i + 1];
         //std::string handler_name = statement->tokens_[i + 2];
         if(statement->child_block_->statements_.size() == 0){
@@ -39,7 +40,8 @@ bool ServerConfig::Init(const char* config_file)
         //TODO: get urlprefix and create a NotFound Handler
         std::string uri_prefix = statement->tokens_[i + 1];
         //std::string handler_name = statement->tokens_[i + 2];
-        //m_params["root"] = statement->tokens_[i + 1];
+        std::shared_ptr<RequestHandler> handler_ptr (new NotFoundHandler());
+        m_handler_map[""] = std::move(handler_ptr);
       }
 
       //if (token == "static")

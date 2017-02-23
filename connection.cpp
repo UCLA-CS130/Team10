@@ -52,10 +52,10 @@ void connection::handle_read(const boost::system::error_code& e,
   {
     std::string raw_request = buffer_to_string();
     auto request = Request::Parse(raw_request);
-    //todo:  error catch
+    //std::cout << request->uri();
     std::shared_ptr<RequestHandler> handler_ptr = handler_map_[request->uri()];
-    if(handler_ptr != NULL)
-      std::cout<<"Start to handle request...\n";
+    if(handler_ptr == NULL)
+      handler_ptr = handler_map_[""];
     Response response;
     handler_ptr->HandleRequest(*request, &response);
     boost::asio::streambuf out_streambuf;

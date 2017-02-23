@@ -15,7 +15,7 @@ class NotFoundHandler
 public:
   NotFoundHandler();
   Status Init(const std::string& uri_prefix,
-                      const ServerConfig& config);
+                      const NginxConfig& config);
   Status HandleRequest(const Request& request,
                                Response* response);
 

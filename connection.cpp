@@ -53,7 +53,9 @@ void connection::handle_read(const boost::system::error_code& e,
     std::string raw_request = buffer_to_string();
     auto request = Request::Parse(raw_request);
     //std::cout << request->uri();
-    std::shared_ptr<RequestHandler> handler_ptr = handler_map_[request->uri()];
+    std::string key_to_use = find_key(request->uri());
+    //std::cout << "url is " << request->uri() << '\n' << "key to use is " << key_to_use <<'\n';
+    std::shared_ptr<RequestHandler> handler_ptr = handler_map_[key_to_use];
     if(handler_ptr == NULL)
       handler_ptr = handler_map_[""];
     Response response;
@@ -61,8 +63,6 @@ void connection::handle_read(const boost::system::error_code& e,
     boost::asio::streambuf out_streambuf;
     std::ostream out(&out_streambuf);
     out << response.ToString();
-    //std::vector<boost::asio::const_buffer> buffers;
-    //buffers.push_back(boost::asio::buffer(response.ToString()));
     std::cout << "Start to asycn write...\n";
     boost::asio::async_write(socket_, out_streambuf,
           boost::bind(&connection::handle_write, shared_from_this(),
@@ -124,4 +124,13 @@ std::string connection::buffer_to_string()
     buffers_end(buffer.data())
   };
   return s;
+}
+std::string connection::find_key(std::string request_url) const
+{
+  for(auto const &pair : handler_map_){
+    std::string key = pair.first;
+    if(key != "" && request_url.size() >= key.size() && request_url.substr(0, key.size()) == key)
+      return key;
+  }
+  return "";
 }

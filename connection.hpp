@@ -45,7 +45,7 @@ public:
   void stop();
 
 private:
-
+  std::string find_key(std::string request_url) const;
   std::string buffer_to_string();
   /// Handle completion of a read operation.
   void handle_read(const boost::system::error_code& e,

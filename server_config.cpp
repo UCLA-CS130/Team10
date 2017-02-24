@@ -1,7 +1,7 @@
 #include "server_config.hpp"
 #include "echo_handler.hpp"
 #include "not_found_handler.hpp"
-#include "file_handler.hpp"
+#include "static_handler.hpp"
 #include "status_handler.hpp"
 #include <iostream> // debug purpose
 
@@ -42,7 +42,7 @@ bool ServerConfig::Init(const char* config_file)
       }
       else if (token == "default" && statement->tokens_.size() == 2){
         //TODO: catech exception
-        
+
         std::string uri_prefix = "";
         std::string handler_name = statement->tokens_[1];
         auto raw_handler_ptr = RequestHandler::CreateByName(handler_name.c_str());

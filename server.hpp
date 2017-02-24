@@ -13,7 +13,7 @@
 #include "connection.hpp"
 #include "connection_manager.hpp"
 #include "echo_handler.hpp"
-#include "file_handler.hpp"
+#include "static_handler.hpp"
 #include "not_found_handler.hpp"
 #include "status_handler.hpp"
 #include "server_config.hpp"

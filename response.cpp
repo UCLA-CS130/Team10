@@ -280,7 +280,7 @@ std::string Response::ToString()
 
 int Response::ContentLength()
 {
-  return (int) sizeof(m_body);
+  return (int) m_body.length();
 }
 
 std::string Response::GetResponseCode()

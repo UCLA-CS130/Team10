@@ -8,6 +8,7 @@ import psutil
 ROOT_PATH = "demo/"
 ECHO_PATH = "/echo"
 STATIC_PATH = "/static/"
+CONFIG_FILE_NAME = "config.conf"
 
 def get_output_of_shell_command(cmd):
   p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -19,13 +20,28 @@ def get_output_of_shell_command(cmd):
 def run_background_process(cmd):
   os.system(cmd)
 
+def kill_server(exit_code):
+    # Kill webserver
+    PROCNAME = "webserver"
+
+    for proc in psutil.process_iter():
+      if proc.name() == PROCNAME:
+        print "Webserver process found, killing process..."
+        proc.kill()
+        print "Process killed. Exiting..."
+        sys.exit(exit_code)
+
+    print "Could not find webserver process...\nexiting..."
+    sys.exit(1)
+
+
 def main():
 
   # Make and get output
   print get_output_of_shell_command("make")
 
   # Run the webserver in the background
-  run_background_process("./webserver " + ROOT_PATH + "nginx.conf &")
+  run_background_process("./webserver " + ROOT_PATH + CONFIG_FILE_NAME + " &")
 
   # GET the HTTP response for echo
   print "TEST ECHO SERVER\n"
@@ -43,7 +59,7 @@ def main():
     print "Success! 1 out of 2 tests passed!"
   else:
     print "Error, check output: \n" + http_res
-    sys.exit(1)
+    kill_server(1)
 
   # GET the HTTP response for index.html
   print "TEST FILE SERVER\n"
@@ -61,22 +77,10 @@ def main():
     print "Success! 2 out of 2 tests passed!\n"
   else:
     print "Error, check output: \n" + http_res
-    sys.exit(1)
+    kill_server(1)
 
 
-  # Kill webserver
-  PROCNAME = "webserver"
-
-  for proc in psutil.process_iter():
-    if proc.name() == PROCNAME:
-      print "Webserver process found, killing process..."
-      proc.kill()
-      print "Process killed. Exiting..."
-      sys.exit()
-
-
-  print "Could not find webserver process...\nexiting..."
-  sys.exit(1)
+  kill_server(0)
 
 
 if __name__ == "__main__":

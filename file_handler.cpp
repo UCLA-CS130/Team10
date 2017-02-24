@@ -60,7 +60,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
     //rep = reply::stock_reply(reply::bad_request);
     return RequestHandler::INVALID;
   }
-  
+
 
   // If path ends in slash (i.e. is a directory) then add "index.html".
   if (request_path[request_path.size() - 1] == '/')
@@ -101,6 +101,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   response->SetStatus(Response::ok);
   response->AddHeader("Content-Length", std::to_string(response->ContentLength()));
   response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
+  std::cout << response->ToString() << std::endl;
   return RequestHandler::OK;
 }
 

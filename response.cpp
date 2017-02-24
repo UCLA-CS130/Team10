@@ -283,6 +283,20 @@ int Response::ContentLength()
   return (int) sizeof(m_body);
 }
 
+std::string Response::GetResponseCode()
+{
+  switch(m_status){
+    case ok:
+      return "200";
+    case bad_request:
+      return "400";
+    case not_found:
+      return "404";
+    default:
+      return "500";
+  }
+}
+
 /*Response Response::stock_reply(reply::status_type status)
 {
   reply rep;

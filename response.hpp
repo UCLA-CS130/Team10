@@ -61,6 +61,8 @@ public:
   // Get body length
   int ContentLength();
 
+  std::string GetResponseCode();
+
 private:
   // The response status to be included in the response.
   ResponseCode m_status;

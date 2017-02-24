@@ -2,6 +2,7 @@
 #include "echo_handler.hpp"
 #include "not_found_handler.hpp"
 #include "file_handler.hpp"
+#include "status_handler.hpp"
 #include <iostream> // debug purpose
 
 ServerConfig::ServerConfig()
@@ -37,17 +38,17 @@ bool ServerConfig::Init(const char* config_file)
         std::shared_ptr<RequestHandler> handler_ptr (raw_handler_ptr);
 
         if(handler_ptr->Init(uri_prefix, *(statement->child_block_)) == RequestHandler::OK)
-          m_handler_map[uri_prefix] = std::move(handler_ptr);
+          m_handler_map[uri_prefix] = std::make_pair(handler_name, std::move(handler_ptr));
       }
       else if (token == "default" && statement->tokens_.size() == 2){
         //TODO: catech exception
         
-        std::string uri_prefix = statement->tokens_[1];
-        std::string handler_name = "";
-        auto raw_handler_ptr = RequestHandler::CreateByName("NotFoundHandler");
+        std::string uri_prefix = "";
+        std::string handler_name = statement->tokens_[1];
+        auto raw_handler_ptr = RequestHandler::CreateByName(handler_name.c_str());
         std::shared_ptr<RequestHandler> handler_ptr (raw_handler_ptr);
         handler_ptr->Init(uri_prefix, *(statement->child_block_));
-        m_handler_map[handler_name] = std::move(handler_ptr);
+        m_handler_map[uri_prefix] = std::make_pair(handler_name, std::move(handler_ptr));
       }
       //if (token == "static")
         //m_params["static_path"] = statement->tokens_[i + 1];

@@ -20,6 +20,7 @@
 #include "request.hpp"
 #include "request_handler.hpp"
 #include "Server_config.hpp"
+#include "log.hpp"
 //#include "request_parser.hpp"
 
 

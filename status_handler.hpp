@@ -6,6 +6,7 @@
 #include "request.hpp"
 #include "response.hpp"
 #include "server_config.hpp"
+#include "log.hpp"
 
 
 /// The common handler for all incoming requests.
@@ -15,14 +16,16 @@ class StatusHandler
 public:
   StatusHandler();
   Status Init(const std::string& uri_prefix,
-                      const ServerConfig& config);
+                      const NginxConfig& config);
   Status HandleRequest(const Request& request,
                                Response* response);
+  void AddMap(const HandlerMap map);
 
 private:
-  std::string m_uri_prefix;
-  std::string m_path;
+  HandlerMap m_map;
+  // print out uriprefix - handler map
+  std::string MapToString();
 };
 
-
+REGISTER_REQUEST_HANDLER(StatusHandler);
 #endif // STATUS_HANDLER_HPP

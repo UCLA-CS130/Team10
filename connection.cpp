@@ -46,18 +46,19 @@ void connection::handle_read(const boost::system::error_code& e,
     std::string raw_request = buffer_to_string();
     auto request = Request::Parse(raw_request);
     std::string key_to_use = find_key(request->uri());
-    std::shared_ptr<RequestHandler> handler_ptr = handler_map_[key_to_use];
+    std::shared_ptr<RequestHandler> handler_ptr = handler_map_[key_to_use].second;
     if(handler_ptr == NULL)
-      handler_ptr = handler_map_[""];
+      handler_ptr = handler_map_[""].second;
     Response response;
     // if StaticHandler cannot handle the request
     // call NotFoundHanlder
     if(handler_ptr->HandleRequest(*request, &response) == RequestHandler::INVALID){
       std::cerr << "Cannot handle request...\n";
-      handler_ptr = handler_ptr = handler_map_[""];
+      handler_ptr = handler_map_[""].second;
       handler_ptr->HandleRequest(*request, &response);
     }
 
+    Log::instance()->add_record(request->uri(), response.GetResponseCode());
     // Write the reponse back to the socket.
     boost::asio::streambuf out_streambuf;
     std::ostream out(&out_streambuf);

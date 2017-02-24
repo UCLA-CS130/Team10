@@ -9,7 +9,7 @@
 #include "config_parser.hpp"
 #include "request_handler.hpp"
 
-typedef std::map <std::string, std::shared_ptr<RequestHandler>> HandlerMap;
+typedef std::map <std::string, std::pair<std::string, std::shared_ptr<RequestHandler>>> HandlerMap;
 //typedef std::unordered_map <std::string, std::string> Dictionary;
 
 class ServerConfig {

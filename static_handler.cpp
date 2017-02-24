@@ -3,7 +3,7 @@
 // ~~~~~~~~~~~~~~~~~~~
 //
 
-#include "file_handler.hpp"
+#include "static_handler.hpp"
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <sstream>

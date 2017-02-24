@@ -10,7 +10,7 @@
 
 
 
-server::server(const std::string& address, const ServerConfig& config)
+Server::Server(const std::string& address, const ServerConfig& config)
   : io_service_(),
     signals_(io_service_),
     acceptor_(io_service_),
@@ -26,7 +26,7 @@ server::server(const std::string& address, const ServerConfig& config)
 #if defined(SIGQUIT)
   signals_.add(SIGQUIT);
 #endif // defined(SIGQUIT)
-  signals_.async_wait(boost::bind(&server::handle_stop, this));
+  signals_.async_wait(boost::bind(&Server::handle_stop, this));
 
   // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
   boost::asio::ip::tcp::resolver resolver(io_service_);
@@ -40,7 +40,7 @@ server::server(const std::string& address, const ServerConfig& config)
   start_accept();
 }
 
-void server::run()
+void Server::run()
 {
   // The io_service::run() call will block until all asynchronous operations
   // have finished. While the server is running, there is always at least one
@@ -49,17 +49,17 @@ void server::run()
   io_service_.run();
 }
 
-void server::start_accept()
+void Server::start_accept()
 {
   // TODO: Feed correct request_handers under different situation.
   new_connection_.reset(new connection(io_service_,
         connection_manager_));//, config_.Handler_map()));
   acceptor_.async_accept(new_connection_->socket(),
-      boost::bind(&server::handle_accept, this,
+      boost::bind(&Server::handle_accept, this,
         boost::asio::placeholders::error));
 }
 
-void server::handle_accept(const boost::system::error_code& e)
+void Server::handle_accept(const boost::system::error_code& e)
 {
   // Check whether the server was stopped by a signal before this completion
   // handler had a chance to run.
@@ -76,7 +76,7 @@ void server::handle_accept(const boost::system::error_code& e)
   start_accept();
 }
 
-void server::handle_stop()
+void Server::handle_stop()
 {
   // The server is stopped by cancelling all outstanding asynchronous
   // operations. Once all operations have finished the io_service::run() call

@@ -8,6 +8,7 @@ import psutil
 ROOT_PATH = "demo/"
 ECHO_PATH = "/echo"
 STATIC_PATH = "/static/"
+STATUS_PATH = "/status"
 CONFIG_FILE_NAME = "config.conf"
 
 def get_output_of_shell_command(cmd):
@@ -34,6 +35,23 @@ def kill_server(exit_code):
     print "Could not find webserver process...\nexiting..."
     sys.exit(1)
 
+def test(name, path, test_string):
+    print name
+    http_req = "GET http://localhost:3000" + path
+    http_res = get_output_of_shell_command(http_req)
+
+    # Print for clarity
+    print "HTTP request: \n"
+    print http_req + "\n\n"
+    print "HTTP response: \n"
+    print http_res
+
+
+    if test_string in http_res:
+      print "Success!\n"
+    else:
+      print "Error, check output: \n" + http_res
+      kill_server(1)
 
 def main():
 
@@ -44,41 +62,16 @@ def main():
   run_background_process("./webserver " + ROOT_PATH + CONFIG_FILE_NAME + " &")
 
   # GET the HTTP response for echo
-  print "TEST ECHO SERVER\n"
-  http_req = "GET http://localhost:3000" + ECHO_PATH
-  http_res = get_output_of_shell_command(http_req)
-
-  # Print for clarity
-  print "HTTP request: \n"
-  print http_req + "\n\n"
-  print "HTTP response: \n"
-  print http_res
-
-  # Check for correct host and port
-  if "localhost:3000" in http_res:
-    print "Success! 1 out of 2 tests passed!"
-  else:
-    print "Error, check output: \n" + http_res
-    kill_server(1)
+  test("ECHO HANDLER", ECHO_PATH, "localhost:3000")
 
   # GET the HTTP response for index.html
-  print "TEST FILE SERVER\n"
-  http_req = "GET http://localhost:3000" + STATIC_PATH
-  http_res = get_output_of_shell_command(http_req)
+  test("STATIC HANDLER", STATIC_PATH, "CS130 is the best class ever")
 
-  # Print for clarity
-  print "HTTP request: \n"
-  print http_req + "\n\n"
-  print "HTTP response: \n"
-  print http_res
+  # GET the HTTP response for status
+  test("STATUS HANDLER", STATUS_PATH, "Number of connections: 2\n/echo: 200\n/static/: 200")
 
-  # Check for correct host and port
-  if "CS130 is the best class ever" in http_res:
-    print "Success! 2 out of 2 tests passed!\n"
-  else:
-    print "Error, check output: \n" + http_res
-    kill_server(1)
-
+  # GET the HTTP 404 response
+  test("404 HANDLER", STATIC_PATH + "/dummy.html", "404 Not Found")
 
   kill_server(0)
 

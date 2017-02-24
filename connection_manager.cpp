@@ -32,5 +32,3 @@ void connection_manager::stop_all()
       boost::bind(&connection::stop, _1));
   connections_.clear();
 }
-
-

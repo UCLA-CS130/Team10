@@ -8,6 +8,75 @@
 /*#include <string>
 #include <boost/lexical_cast.hpp>
 
+*/
+
+void Response::SetStatus(const ResponseCode response_code)
+{
+  m_status = response_code;
+}
+
+void Response::AddHeader(const std::string& header_name, const std::string& header_value)
+{
+  std::pair<std::string, std::string> header(header_name, header_value);
+  m_headers.push_back(header);
+}
+
+void Response::SetBody(const std::string& body)
+{
+  m_body = body;
+}
+
+std::string Response::ToString()
+{
+  std::string result_str = "";
+
+  // Add version and status.
+  switch(m_status){
+    case ok:
+      result_str += "HTTP/1.0 200 OK\r\n";
+      break;
+    case bad_request:
+      result_str += "HTTP/1.0 400 Bad Request\r\n";
+      break;
+    case not_found:
+      result_str += "HTTP/1.0 404 Not Found\r\n";
+      break;
+    default:
+      result_str += "HTTP/1.0 500 Internal Server Error\r\n";
+      break;
+  }
+  // Add headers.
+  for(auto it = m_headers.begin(); it != m_headers.end(); ++it) {
+    result_str += (*it).first + ": " + (*it).second + "\r\n";
+  }
+  result_str += "\r\n";
+
+  // Add body message.
+  result_str += m_body;
+  return result_str;
+}
+
+int Response::ContentLength()
+{
+  return (int) m_body.length();
+}
+
+std::string Response::GetResponseCode()
+{
+  switch(m_status){
+    case ok:
+      return "200";
+    case bad_request:
+      return "400";
+    case not_found:
+      return "404";
+    default:
+      return "500";
+  }
+}
+
+/*
+
 namespace status_strings {
 
 const std::string ok =
@@ -232,70 +301,7 @@ std::string to_string(Response::ResponseCode status)
 
 } // namespace stock_replies
 */
-void Response::SetStatus(const ResponseCode response_code)
-{
-  m_status = response_code;
-}
 
-void Response::AddHeader(const std::string& header_name, const std::string& header_value)
-{
-  std::pair<std::string, std::string> header(header_name, header_value);
-  m_headers.push_back(header);
-}
-
-void Response::SetBody(const std::string& body)
-{
-  m_body = body;
-}
-
-std::string Response::ToString()
-{
-  std::string result_str = "";
-
-  // Add version and status.
-  switch(m_status){
-    case ok:
-      result_str += "HTTP/1.0 200 OK\r\n";
-      break;
-    case bad_request:
-      result_str += "HTTP/1.0 400 Bad Request\r\n";
-      break;
-    case not_found:
-      result_str += "HTTP/1.0 404 Not Found\r\n";
-      break;
-    default:
-      result_str += "HTTP/1.0 500 Internal Server Error\r\n";
-      break;
-  }
-  // Add headers.
-  for(auto it = m_headers.begin(); it != m_headers.end(); ++it) {
-    result_str += (*it).first + ": " + (*it).second + "\r\n";
-  }
-  result_str += "\r\n";
-
-  // Add body message.
-  result_str += m_body;
-  return result_str;
-}
-
-int Response::ContentLength()
-{
-  return (int) m_body.length();
-}
-
-std::string Response::GetResponseCode()
-{
-  switch(m_status){
-    case ok:
-      return "200";
-    case bad_request:
-      return "400";
-    case not_found:
-      return "404";
-    default:
-      return "500";
-  }
-}
 
 /*Response Response::stock_reply(reply::status_type status)
 {

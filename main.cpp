@@ -24,22 +24,23 @@ int main(int argc, char* argv[])
     }
 
     ServerConfig* server_config = new ServerConfig();
-    // Init
     if (server_config->Init(argv[1]))
     {
       // Initialise the server.
-      server s("0.0.0.0", *server_config);
+      Server* server = new Server("0.0.0.0", *server_config);
 
       // Run the server until stopped.
       std::cout << "The server is running on port " << server_config->Port() << std::endl;
-      s.run();
+      server->run();
+
+      delete server;
     }
     else
     {
       std::cout << "failed." << std::endl;
     }
 
-    // Clean up?
+    // Clean up
     delete server_config;
   }
   catch (std::exception& e)

@@ -50,7 +50,7 @@ void connection::handle_read(const boost::system::error_code& e,
     Response response;
 
     // if StaticHandler cannot handle the request
-    // call NotFoundHanlder
+    // call NotFoundHandler
     if(handler_ptr->HandleRequest(*request, &response) == RequestHandler::INVALID){
       std::cerr << "Cannot handle request...\n";
       handler_ptr = Log::instance()->get_map()[""].second;
@@ -58,6 +58,7 @@ void connection::handle_read(const boost::system::error_code& e,
     }
 
     Log::instance()->add_record(request->uri(), response.GetResponseCode());
+    
     // Write the reponse back to the socket.
     boost::asio::streambuf out_streambuf;
     std::ostream out(&out_streambuf);
@@ -67,31 +68,6 @@ void connection::handle_read(const boost::system::error_code& e,
           boost::bind(&connection::handle_write, shared_from_this(),
             boost::asio::placeholders::error));
 
-    /*boost::tribool result;
-    boost::tie(result, boost::tuples::ignore) = request_parser_.parse(
-        request_, buffer_.data(), buffer_.data() + bytes_transferred);
-
-    if (result)
-    {
-      request_handler_.handle_request(request_, reply_);
-      boost::asio::async_write(socket_, reply_.to_buffers(),
-          boost::bind(&connection::handle_write, shared_from_this(),
-            boost::asio::placeholders::error));
-    }
-    else if (!result)
-    {
-      reply_ = reply::stock_reply(reply::bad_request);
-      boost::asio::async_write(socket_, reply_.to_buffers(),
-          boost::bind(&connection::handle_write, shared_from_this(),
-            boost::asio::placeholders::error));
-    }
-    else
-    {
-      socket_.async_read_some(boost::asio::buffer(buffer_),
-          boost::bind(&connection::handle_read, shared_from_this(),
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
-    }*/
   }
   else if (e != boost::asio::error::operation_aborted)
   {
@@ -116,7 +92,8 @@ void connection::handle_write(const boost::system::error_code& e)
 
 std::string connection::buffer_to_string()
 {
-  std::string s{
+  std::string s
+  {
     buffers_begin(buffer.data()),
     buffers_end(buffer.data())
   };
@@ -127,10 +104,13 @@ std::string connection::find_key(std::string request_url) const
 {
   unsigned int longest_match_size = 0;
   std::string result = "";
-  for(auto const &pair : Log::instance()->get_map()){
+  for (auto const &pair : Log::instance()->get_map())
+  {
     // if there is match
-    if(request_url.find(pair.first) == 0){
-      if(pair.first.size() > longest_match_size){
+    if (request_url.find(pair.first) == 0)
+    {
+      if (pair.first.size() > longest_match_size)
+      {
         result = pair.first;
         longest_match_size = pair.first.size();
       }

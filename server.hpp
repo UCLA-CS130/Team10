@@ -21,13 +21,13 @@
 
 
 /// The top-level class of the HTTP server.
-class server
+class Server
   : private boost::noncopyable
 {
 public:
   /// Construct the server to listen on the specified TCP address and port, and
   /// serve up files from the given directory.
-  explicit server(const std::string& address, const ServerConfig& config);
+  explicit Server(const std::string& address, const ServerConfig& config);
 
   /// Run the server's io_service loop.
   void run();

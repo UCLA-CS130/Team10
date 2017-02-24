@@ -23,7 +23,6 @@ public:
 private:
   std::string m_uri_prefix;
   std::string m_static_path;
-  //TODO: alter to hash map for all static paths
 
   bool url_decode(const std::string& in, std::string& out);
 };

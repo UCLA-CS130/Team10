@@ -50,10 +50,15 @@ void connection::handle_read(const boost::system::error_code& e,
     if(handler_ptr == NULL)
       handler_ptr = handler_map_[""];
     Response response;
+    // if StaticHandler cannot handle the request
+    // call NotFoundHanlder
     if(handler_ptr->HandleRequest(*request, &response) == RequestHandler::INVALID){
       std::cerr << "Cannot handle request...\n";
-      // TODO: catch this error
+      handler_ptr = handler_ptr = handler_map_[""];
+      handler_ptr->HandleRequest(*request, &response);
     }
+
+    // Write the reponse back to the socket.
     boost::asio::streambuf out_streambuf;
     std::ostream out(&out_streambuf);
     out << response.ToString();
@@ -111,14 +116,13 @@ void connection::handle_write(const boost::system::error_code& e)
 
 std::string connection::buffer_to_string()
 {
-  //std::string s(buffer_.begin(), buffer_.end());
-  //std::string s(buffer.begin(), buffer.end());
   std::string s{
     buffers_begin(buffer.data()),
     buffers_end(buffer.data())
   };
   return s;
 }
+
 std::string connection::find_key(std::string request_url) const
 {
   for(auto const &pair : handler_map_){

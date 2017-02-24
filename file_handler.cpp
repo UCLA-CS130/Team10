@@ -23,19 +23,19 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix,
   {
     for (auto token: statement->tokens_)
     {
-      if (token == "root" && statement->tokens_.size()==2)
+      if (token == "root" && statement->tokens_.size()==2){
         m_static_path= statement->tokens_[1];
-      else
-        return RequestHandler::INVALID;
+        return RequestHandler::OK;
+      }
     }
   }
-  return RequestHandler::OK;
+  return RequestHandler::INVALID;
 }
 
 RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
                                Response* response)
 {
-  std::cout << "in FileHandler HandleRequest...\n";
+  std::cout << "FileHandler HandleRequest...\n";
   // Decode url to path.
   std::string request_path;
   if (!url_decode(request.uri(), request_path))

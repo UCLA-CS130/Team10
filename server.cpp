@@ -61,7 +61,7 @@ void server::start_accept()
 {
   // TODO: Feed correct request_handers under different situation.
   new_connection_.reset(new connection(io_service_,
-        connection_manager_, config_.Handler_map()));
+        connection_manager_));//, config_.Handler_map()));
   acceptor_.async_accept(new_connection_->socket(),
       boost::bind(&server::handle_accept, this,
         boost::asio::placeholders::error));

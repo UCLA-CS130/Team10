@@ -8,8 +8,9 @@
 #include <boost/bind.hpp>
 #include "config_parser.hpp"
 #include "request_handler.hpp"
+#include "log.hpp"
 
-typedef std::map <std::string, std::pair<std::string, std::shared_ptr<RequestHandler>>> HandlerMap;
+//typedef std::map <std::string, std::pair<std::string, std::shared_ptr<RequestHandler>>> HandlerMap;
 //typedef std::unordered_map <std::string, std::string> Dictionary;
 
 class ServerConfig {
@@ -25,12 +26,12 @@ public:
   std::string Port() const;
 
   // get uri-handler map
-  HandlerMap Handler_map() const;
+  //HandlerMap Handler_map() const;
 
 
 private:
   // URI to request_handler map
-  HandlerMap m_handler_map;
+  //HandlerMap m_handler_map;
   // Port number
   std::string m_port;
 };

@@ -11,10 +11,10 @@
 
 
 connection::connection(boost::asio::io_service& io_service,
-    connection_manager& manager, HandlerMap handler_map)
+    connection_manager& manager)//, HandlerMap handler_map)
   : socket_(io_service),
-    connection_manager_(manager),
-    handler_map_(handler_map)
+    connection_manager_(manager)
+    //handler_map_(handler_map)
     //request_handler_(handler)
 {
 }
@@ -46,15 +46,17 @@ void connection::handle_read(const boost::system::error_code& e,
     std::string raw_request = buffer_to_string();
     auto request = Request::Parse(raw_request);
     std::string key_to_use = find_key(request->uri());
-    std::shared_ptr<RequestHandler> handler_ptr = handler_map_[key_to_use].second;
+    std::shared_ptr<RequestHandler> handler_ptr = Log::instance()->get_map()[key_to_use].second;//handler_map_[key_to_use].second;
     if(handler_ptr == NULL)
-      handler_ptr = handler_map_[""].second;
+      //handler_ptr = handler_map_[""].second;
+      handler_ptr = Log::instance()->get_map()[""].second;
     Response response;
     // if StaticHandler cannot handle the request
     // call NotFoundHanlder
     if(handler_ptr->HandleRequest(*request, &response) == RequestHandler::INVALID){
       std::cerr << "Cannot handle request...\n";
-      handler_ptr = handler_map_[""].second;
+      //handler_ptr = handler_map_[""].second;
+      handler_ptr = Log::instance()->get_map()[""].second;
       handler_ptr->HandleRequest(*request, &response);
     }
 
@@ -126,7 +128,7 @@ std::string connection::buffer_to_string()
 
 std::string connection::find_key(std::string request_url) const
 {
-  for(auto const &pair : handler_map_){
+  for(auto const &pair : Log::instance()->get_map()){//handler_map_){
     std::string key = pair.first;
     if(key != "" && request_url.size() >= key.size() && request_url.substr(0, key.size()) == key)
       return key;

@@ -23,28 +23,13 @@ RequestHandler::Status StatusHandler::HandleRequest(const Request& request,
                                Response* response)
 {
   std::cout << "StatusHandler HandleRequest...\n";
-  std::string result = Log::instance()->records();
+  std::string result = Log::instance()->map_to_string();
+  result += '\n';
+  result += Log::instance()->records_to_string();
   std::cout << result << '\n';
   response->SetStatus(Response::ok);
   response->AddHeader("Content-Length", std::to_string(result.size()));
   response->AddHeader("Content-Type", "text/plain");
   response->SetBody(result);
   return RequestHandler::OK;
-}
-
-void StatusHandler::AddMap(const HandlerMap map)
-{
-  m_map = map;
-}
-
-std::string StatusHandler::MapToString()
-{
-  std::string result = "";
-  for(auto const &pair : m_map){
-    result += pair.first;
-    result += " -> ";
-    result += pair.second.first;
-    result += '\n';  
-  }
-  return result;
 }

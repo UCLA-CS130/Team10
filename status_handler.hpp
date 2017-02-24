@@ -19,12 +19,6 @@ public:
                       const NginxConfig& config);
   Status HandleRequest(const Request& request,
                                Response* response);
-  void AddMap(const HandlerMap map);
-
-private:
-  HandlerMap m_map;
-  // print out uriprefix - handler map
-  std::string MapToString();
 };
 
 REGISTER_REQUEST_HANDLER(StatusHandler);

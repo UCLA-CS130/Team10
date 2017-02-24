@@ -2,11 +2,7 @@
 // server.cpp
 // ~~~~~~~~~~
 //
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+
 
 #include "server.hpp"
 #include <boost/bind.hpp>
@@ -21,10 +17,6 @@ server::server(const std::string& address, const ServerConfig& config)
     connection_manager_(),
     new_connection_(),
     config_(config)
-    /*echo_handler_(),
-    file_handler_(),
-    not_found_handler_(),
-    status_handler_()*/
 {
   // Register to handle the signals that indicate when the server should exit.
   // It is safe to register for the same signal multiple times in a program,

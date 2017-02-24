@@ -39,7 +39,6 @@ bool ServerConfig::Init(const char* config_file)
 
         if(handler_ptr->Init(uri_prefix, *(statement->child_block_)) == RequestHandler::OK)
           Log::instance()->add_mapping(uri_prefix, handler_name, handler_ptr);
-          //m_handler_map[uri_prefix] = std::make_pair(handler_name, std::move(handler_ptr));
       }
       else if (token == "default" && statement->tokens_.size() == 2){
         //TODO: catech exception
@@ -50,7 +49,6 @@ bool ServerConfig::Init(const char* config_file)
         std::shared_ptr<RequestHandler> handler_ptr (raw_handler_ptr);
         handler_ptr->Init(uri_prefix, *(statement->child_block_));
         Log::instance()->add_mapping(uri_prefix, handler_name, handler_ptr);
-        //m_handler_map[uri_prefix] = std::make_pair(handler_name, std::move(handler_ptr));
       }
     }
   }

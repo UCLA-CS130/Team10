@@ -2,11 +2,7 @@
 // server.hpp
 // ~~~~~~~~~~
 //
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+
 
 #ifndef HTTP_SERVER_HPP
 #define HTTP_SERVER_HPP
@@ -61,18 +57,8 @@ private:
   /// The next connection to be accepted.
   connection_ptr new_connection_;
 
-  /// The handler for all incoming echo requests.
-  //request_handler_echo request_handler_echo_;
-
   /// The handler for all incoming file requests.
   ServerConfig config_;
-  /*EchoHandler echo_handler_;
-
-  FileHandler* file_handler_;
-
-  NotFoundHandler* not_found_handler_;
-
-  StatusHandler* status_handler_;*/
 };
 
 

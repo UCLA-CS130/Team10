@@ -2,11 +2,7 @@
 // connection.hpp
 // ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+
 
 #ifndef HTTP_CONNECTION_HPP
 #define HTTP_CONNECTION_HPP
@@ -19,9 +15,8 @@
 #include "response.hpp"
 #include "request.hpp"
 #include "request_handler.hpp"
-#include "Server_config.hpp"
 #include "log.hpp"
-//#include "request_parser.hpp"
+
 
 
 class connection_manager;
@@ -67,22 +62,9 @@ private:
   /// The manager for this connection.
   connection_manager& connection_manager_;
 
-  /// The handler used to process the incoming request.
-  //RequestHandler& request_handler_;
-  //HandlerMap handler_map_;
-
   /// Buffer for incoming data.
-  //boost::array<char, 8192> buffer_;
   boost::asio::streambuf buffer;
 
-  /// The incoming request.
-  //Request request_;
-
-  /// The parser for the incoming request.
-  //request_parser request_parser_;
-
-  /// The reply to be sent back to the client.
-  //Response reply_;
 };
 
 typedef boost::shared_ptr<connection> connection_ptr;

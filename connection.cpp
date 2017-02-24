@@ -125,10 +125,16 @@ std::string connection::buffer_to_string()
 
 std::string connection::find_key(std::string request_url) const
 {
+  unsigned int longest_match_size = 0;
+  std::string result = "";
   for(auto const &pair : Log::instance()->get_map()){
-    std::string key = pair.first;
-    if(key != "" && request_url.size() >= key.size() && request_url.substr(0, key.size()) == key)
-      return key;
+    // if there is match
+    if(request_url.find(pair.first) == 0){
+      if(pair.first.size() > longest_match_size){
+        result = pair.first;
+        longest_match_size = pair.first.size();
+      }
+    }
   }
-  return "";
+  return result;
 }

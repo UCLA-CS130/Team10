@@ -4,7 +4,7 @@
 #include <boost/bind.hpp>
 using ::testing::AtLeast;
 
-class MockServer :  public http::server::Server{
+class MockServer :  public Server{
 public:
   explicit MockServer() : http::server::Server("0.0.0.0", "3000", ""){}
   MOCK_METHOD0(run, void());

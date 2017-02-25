@@ -101,7 +101,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   response->SetStatus(Response::ok);
   response->AddHeader("Content-Length", std::to_string(response->ContentLength()));
   response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
-  std::cout << response->ToString() << std::endl;
   return RequestHandler::OK;
 }
 

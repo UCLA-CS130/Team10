@@ -9,7 +9,6 @@
 #include <sstream>
 #include "mime_types.hpp"
 
-
 StaticHandler::StaticHandler()
 {
 

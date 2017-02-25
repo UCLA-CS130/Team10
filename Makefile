@@ -10,7 +10,7 @@ UNIT_TESTS_DIR=unit_tests
 GMOCK_DIR=googletest/googlemock
 GTEST_DIR=googletest/googletest
 
-TESTS=unit_tests/config_parser_test unit_tests/request_test unit_tests/request_handler_file_test unit_tests/request_parser_test unit_tests/reply_test unit_tests/connection_manager_test unit_tests/mime_types_test unit_tests/connection_test
+TESTS=unit_tests/config_parser_test unit_tests/request_test unit_tests/static_handler_test  unit_tests/response_test unit_tests/connection_manager_test unit_tests/mime_types_test unit_tests/connection_test unit_tests/echo_handler_test unit_tests/not_found_handler_test
 
 TEST_CLASSES=config_parser.cpp connection.cpp connection_manager.cpp server_config.cpp mime_types.cpp response.cpp echo_handler.cpp server.cpp request.cpp not_found_handler.cpp static_handler.cpp request_handler.cpp status_handler.cpp log.cpp
 

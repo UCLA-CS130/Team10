@@ -22,16 +22,8 @@ protected:
   std::string in3 = "%dfadsfasf%";
   std::string in4  = "http://sdc+.com";
   std::string out = "";
-
   std::string root = "root";
   std::string dir = "./demo/static";
-  
-  void SetUp(){
-    //config = new NginxConfig;
-    //statement = new NginxConfigStatement;
-  }
-  void TearDown(){
-  }
 };
 
 
@@ -43,8 +35,6 @@ TEST_F(StaticHandler_Test, Init_Test){
 
 // test HandleRequest
 TEST_F(StaticHandler_Test, HandleRequest_Test){
-  //std::shared_ptr<NginxConfig> config_(config);
-  //std::shared_ptr<NginxConfigStatement> stm(statement);
   statement->tokens_.push_back(root);
   statement->tokens_.push_back(dir);
   config->statements_.push_back(statement);

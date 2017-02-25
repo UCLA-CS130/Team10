@@ -13,14 +13,11 @@ protected:
 
   virtual void SetUp(){
     skt_ptr = new boost::asio::ip::tcp::socket(io_service_test);
-    //conn_mngr_ptr = new http::server::connection_manager();
-    conn_ptr = new connection(io_service_test, *conn_mngr_ptr);//, *rqst_hndlr_ptr);
+    conn_ptr = new connection(io_service_test, *conn_mngr_ptr);
   }
 
   virtual void TearDown(){
     delete skt_ptr;
-    //delete conn_mngr_ptr;
-    //delete rqst_hndlr_ptr;
     delete conn_ptr;
   }
 };
@@ -30,10 +27,3 @@ protected:
 TEST_F(Connection_Test, Socket_Test) {
   EXPECT_FALSE(conn_ptr->socket().is_open());
 }
-/*
-TEST_F(Connection_Test, is_Socket_open){
-  conn_ptr->start();
-  EXPECT_FALSE(conn_ptr->socket().is_open());
-  conn_ptr->stop();
-  //EXPECT_FALSE(conn_ptr->socket().is_open());
-}*/

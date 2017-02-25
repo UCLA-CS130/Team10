@@ -2,29 +2,21 @@
 // server.cpp
 // ~~~~~~~~~~
 //
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+
 
 #include "server.hpp"
 #include <boost/bind.hpp>
 #include <signal.h>
 
-namespace http {
-namespace server {
 
-server::server(const std::string& address, const std::string& port,
-    const std::string& doc_root, const std::string& static_path,
-    const std::string& echo_path)
+
+Server::Server(const std::string& address, const ServerConfig& config)
   : io_service_(),
     signals_(io_service_),
     acceptor_(io_service_),
     connection_manager_(),
     new_connection_(),
-    //request_handler_echo_()
-    request_handler_file_(doc_root, static_path, echo_path)
+    config_(config)
 {
   // Register to handle the signals that indicate when the server should exit.
   // It is safe to register for the same signal multiple times in a program,
@@ -34,11 +26,11 @@ server::server(const std::string& address, const std::string& port,
 #if defined(SIGQUIT)
   signals_.add(SIGQUIT);
 #endif // defined(SIGQUIT)
-  signals_.async_wait(boost::bind(&server::handle_stop, this));
+  signals_.async_wait(boost::bind(&Server::handle_stop, this));
 
   // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
   boost::asio::ip::tcp::resolver resolver(io_service_);
-  boost::asio::ip::tcp::resolver::query query(address, port);
+  boost::asio::ip::tcp::resolver::query query(address, config.Port());
   boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
   acceptor_.open(endpoint.protocol());
   acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
@@ -48,7 +40,7 @@ server::server(const std::string& address, const std::string& port,
   start_accept();
 }
 
-void server::run()
+void Server::run()
 {
   // The io_service::run() call will block until all asynchronous operations
   // have finished. While the server is running, there is always at least one
@@ -57,17 +49,17 @@ void server::run()
   io_service_.run();
 }
 
-void server::start_accept()
+void Server::start_accept()
 {
   // TODO: Feed correct request_handers under different situation.
   new_connection_.reset(new connection(io_service_,
-        connection_manager_, request_handler_file_));
+        connection_manager_));//, config_.Handler_map()));
   acceptor_.async_accept(new_connection_->socket(),
-      boost::bind(&server::handle_accept, this,
+      boost::bind(&Server::handle_accept, this,
         boost::asio::placeholders::error));
 }
 
-void server::handle_accept(const boost::system::error_code& e)
+void Server::handle_accept(const boost::system::error_code& e)
 {
   // Check whether the server was stopped by a signal before this completion
   // handler had a chance to run.
@@ -84,7 +76,7 @@ void server::handle_accept(const boost::system::error_code& e)
   start_accept();
 }
 
-void server::handle_stop()
+void Server::handle_stop()
 {
   // The server is stopped by cancelling all outstanding asynchronous
   // operations. Once all operations have finished the io_service::run() call
@@ -92,6 +84,3 @@ void server::handle_stop()
   acceptor_.close();
   connection_manager_.stop_all();
 }
-
-} // namespace server
-} // namespace http

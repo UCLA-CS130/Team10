@@ -2,53 +2,43 @@
 // request.hpp
 // ~~~~~~~~~~~
 //
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+
 
 #ifndef HTTP_REQUEST_HPP
 #define HTTP_REQUEST_HPP
 
 #include <string>
 #include <vector>
-#include "header.hpp"
+#include <memory>
 
-namespace http {
-namespace server {
+
 
 /// A request received from a client.
-struct request
+class Request
 {
-  std::string method;
-  std::string uri;
-  int http_version_major;
-  int http_version_minor;
-  std::vector<header> headers;
-  
-  std::string toString() const{
-    std::string result = "";
-    result += method;
-    result += " ";
-    result += uri;
-    result += " HTTP/";
-    result += std::to_string(http_version_major);
-    result += ".";
-    result += std::to_string(http_version_minor);
-    result += "\r\n";
-    for (const auto& header : headers) {
-        result += header.name;
-        result += ": ";
-        result += header.value;
-        result += "\r\n";
-    }
-    result += "\r\n";
-    return result;
-  }
+public:
+
+  // Construct request
+  Request();
+
+  static std::unique_ptr<Request> Parse(const std::string& raw_request);
+  std::string raw_request() const;
+  std::string method() const;
+  std::string uri() const;
+  std::string version() const;
+
+  using Headers = std::vector<std::pair<std::string, std::string>>;
+  Headers headers() const;
+
+  std::string body() const;
+private:
+  std::string m_raw_request;
+  std::string m_method;
+  std::string m_uri;
+  std::string m_version;
+  std::string m_body;
+  Headers m_headers;
 };
 
-} // namespace server
-} // namespace http
 
 #endif // HTTP_REQUEST_HPP

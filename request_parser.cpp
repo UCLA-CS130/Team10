@@ -11,8 +11,6 @@
 #include "request_parser.hpp"
 #include "request.hpp"
 
-namespace http {
-namespace server {
 
 request_parser::request_parser()
   : state_(method_start)
@@ -316,5 +314,4 @@ bool request_parser::is_digit(int c)
   return c >= '0' && c <= '9';
 }
 
-} // namespace server
-} // namespace http
+

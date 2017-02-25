@@ -14,8 +14,7 @@
 #include <boost/logic/tribool.hpp>
 #include <boost/tuple/tuple.hpp>
 
-namespace http {
-namespace server {
+
 
 struct request;
 
@@ -90,7 +89,6 @@ private:
   } state_;
 };
 
-} // namespace server
-} // namespace http
+
 
 #endif // HTTP_REQUEST_PARSER_HPP

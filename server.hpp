@@ -2,11 +2,7 @@
 // server.hpp
 // ~~~~~~~~~~
 //
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+
 
 #ifndef HTTP_SERVER_HPP
 #define HTTP_SERVER_HPP
@@ -16,25 +12,22 @@
 #include <boost/noncopyable.hpp>
 #include "connection.hpp"
 #include "connection_manager.hpp"
-#include "request_handler_echo.hpp"
-#include "request_handler_file.hpp"
-#include "request_handler.hpp"
+#include "echo_handler.hpp"
+#include "static_handler.hpp"
+#include "not_found_handler.hpp"
+#include "status_handler.hpp"
+#include "server_config.hpp"
 
-#include "config_parser.hpp"
 
-namespace http {
-namespace server {
 
 /// The top-level class of the HTTP server.
-class server
+class Server
   : private boost::noncopyable
 {
 public:
   /// Construct the server to listen on the specified TCP address and port, and
   /// serve up files from the given directory.
-  explicit server(const std::string& address, const std::string& port,
-      const std::string& doc_root, const std::string& static_path,
-      const std::string& echo_path);
+  explicit Server(const std::string& address, const ServerConfig& config);
 
   /// Run the server's io_service loop.
   void run();
@@ -64,16 +57,9 @@ private:
   /// The next connection to be accepted.
   connection_ptr new_connection_;
 
-  /// The handler for all incoming echo requests.
-  //request_handler_echo request_handler_echo_;
-
   /// The handler for all incoming file requests.
-  request_handler_file request_handler_file_;
-
-
+  ServerConfig config_;
 };
 
-} // namespace server
-} // namespace http
 
 #endif // HTTP_SERVER_HPP

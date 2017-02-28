@@ -56,6 +56,9 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 
   // Generate new URI (/static/file.txt)
   boost::replace_all(new_uri, m_uri_prefix, "");
+  if (new_uri == "") {
+    new_uri = "/";
+  }
   std::cout << "new uri: " << new_uri << std::endl;
   // Generate new request
   //    GET new_URI HTTP/1.0\r\n\r\n
@@ -173,13 +176,24 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   // boost::asio::async_read(socket, response_buf,
   //                         boost::asio::transfer_at_least(1),
   //                         boost::bind(&ReverseProxyHandler::handle, this,boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
-  boost::asio::read(socket, response_buf, boost::asio::transfer_exactly(6756));
+  boost::system::error_code ec;
+  boost::asio::read(socket, response_buf, ec);
+  if (!ec || ec == boost::asio::error::eof) {
+    // woot, no problem
+    std::cout << "Read to EOF" << std::endl;
+  } else {
+    std::cerr << "Something went wrong...." << std::endl;
+    return RequestHandler::INVALID;
+  }
   boost::asio::streambuf::const_buffers_type response_body = response_buf.data();
   std::string body(boost::asio::buffers_begin(response_body), boost::asio::buffers_begin(response_body) + response_buf.size());
   //boost::regex regex("href[[:space]]*=[[:space]]*\"");
-  std::string new_href = "href=\"" + m_uri_prefix;
-  boost::replace_all(body, "href=\"", new_href);
+  std::string new_href = "href=\"" + m_uri_prefix + "/";
+  boost::replace_all(body, "href=\"/", new_href);
+  std::string new_src = "src=\"" + m_uri_prefix + "/";
+  boost::replace_all(body, "src=\"/", new_href);
 
+  response->SetStatus(Response::ok);
   response->SetBody(body);
   return RequestHandler::OK;
 }

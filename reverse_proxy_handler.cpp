@@ -177,7 +177,7 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   boost::asio::streambuf::const_buffers_type response_body = response_buf.data();
   std::string body(boost::asio::buffers_begin(response_body), boost::asio::buffers_begin(response_body) + response_buf.size());
   //boost::regex regex("href[[:space]]*=[[:space]]*\"");
-  std::string new_href = "href=\"" + m_uri_prefix + "/";
+  std::string new_href = "href=\"" + m_uri_prefix;
   boost::replace_all(body, "href=\"", new_href);
 
   response->SetBody(body);

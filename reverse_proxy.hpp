@@ -21,8 +21,8 @@ public:
 
 
 private:
-  std::string remote_host;
-  std::string remote_port;
+  std::string m_remote_host;
+  std::string m_remote_port;
   std::string m_uri_prefix;
 };
 

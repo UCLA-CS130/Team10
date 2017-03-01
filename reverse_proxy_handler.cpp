@@ -220,7 +220,7 @@ bool ReverseProxyHandler::ParseRedirect(std::istream& response_stream, std::stri
 
         // Generate new host
         size_t host_start = redirect_URL.find("//");
-        if (host_start + 2 > redirect_URL.length())
+        if (host_start == std::string::npos || host_start + 2 >= redirect_URL.length())
         {
           // There is no valid URL?
           std::cerr << "No valid URL." << std::endl;

@@ -9,7 +9,6 @@ class ReverseProxyHandler_Test:public::testing::Test{
 protected:
   ReverseProxyHandler handler;
   Response response;
-  NginxConfig config_;
   std::shared_ptr<NginxConfig> config = std::make_shared<NginxConfig>();
   std::shared_ptr<NginxConfigStatement> statement = std::make_shared<NginxConfigStatement>();
   std::shared_ptr<NginxConfigStatement> statement2 = std::make_shared<NginxConfigStatement>();
@@ -25,14 +24,14 @@ protected:
 };
 
 
-// test Init
-TEST_F(ReverseProxyHandler_Test, Init_Test){
-  EXPECT_EQ(RequestHandler::INVALID, handler.Init(uri_prefix, config_));
+// Test Failing Init (empty)
+TEST_F(ReverseProxyHandler_Test, Init_Fail){
+  EXPECT_EQ(RequestHandler::INVALID, handler.Init(uri_prefix, *config));
 }
 
 
-// test HandleRequest
-TEST_F(ReverseProxyHandler_Test, HandleRequest_Test){
+// test valid Init config
+TEST_F(ReverseProxyHandler_Test, Init_Pass){
   statement->tokens_.push_back(rh);
   statement->tokens_.push_back(host);
   config->statements_.push_back(statement);
@@ -40,9 +39,71 @@ TEST_F(ReverseProxyHandler_Test, HandleRequest_Test){
   statement2->tokens_.push_back(port);
   config->statements_.push_back(statement2);
   EXPECT_EQ(RequestHandler::OK, handler.Init(uri_prefix, *config));
-  
-  //TODO: Make mock webserver?
-  EXPECT_EQ(RequestHandler::OK, handler.HandleRequest(*request, &response));
-  std::string result = "HTTP/1.0 200 OK\r\nContent-Length: 107\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html>\n<body>\n\n<h1>CS130 is the best class ever.</h1>\n\n<p>I <3 Google</p>\n\n</body>\n</html>\n";
-  EXPECT_EQ(result, response.ToString());
 }
+
+// test ProcessHeaderLine
+TEST_F(ReverseProxyHandler_Test, ProcessHeaderLine){
+  std::string header = "Content-Length: 10\r";
+  std::pair<std::string, std::string> parsed_header = handler.ProcessHeaderLine(header);
+  EXPECT_EQ("Content-Length", parsed_header.first);
+  EXPECT_EQ("10", parsed_header.second);
+}
+
+// test ParseRedirect
+TEST_F(ReverseProxyHandler_Test, ParseRedirect){
+  std::string redirect_URI = "";
+  std::string redirect_host = "";
+  std::string response_string = "HTTP/1.1 302 Moved Temporarily\r\nLocation: http://www.ucla.edu/\r\n\r\n";
+  std::istringstream response_stream(response_string);
+  ASSERT_TRUE(handler.ParseRedirect(response_stream, redirect_URI, redirect_host));
+  EXPECT_EQ("www.ucla.edu", redirect_host);
+  EXPECT_EQ("/", redirect_URI);
+}
+
+// test Valid ParseRedirect
+TEST_F(ReverseProxyHandler_Test, ValidParseRedirect){
+  std::string redirect_URI = "";
+  std::string redirect_host = "";
+  std::string response_string = "HTTP/1.1 302 Moved Temporarily\r\nLocation: http://www.ucla.edu/\r\n\r\n";
+  std::istringstream response_stream(response_string);
+  ASSERT_TRUE(handler.ParseRedirect(response_stream, redirect_URI, redirect_host));
+  EXPECT_EQ("www.ucla.edu", redirect_host);
+  EXPECT_EQ("/", redirect_URI);
+}
+
+// test Invalid ParseRedirect (No Location)
+TEST_F(ReverseProxyHandler_Test, NoLocation){
+  std::string redirect_URI = "";
+  std::string redirect_host = "";
+  std::string response_string = "HTTP/1.1 302 Moved Temporarily\r\n\r\n";
+  std::istringstream response_stream(response_string);
+  ASSERT_FALSE(handler.ParseRedirect(response_stream, redirect_URI, redirect_host));
+}
+
+// test Invalid ParseRedirect (Invalid Location URL)
+TEST_F(ReverseProxyHandler_Test, InvalidRedirectURL){
+  std::string redirect_URI = "";
+  std::string redirect_host = "";
+  std::string response_string = "HTTP/1.1 302 Moved Temporarily\r\nLocation: http://\r\n\r\n";
+  std::istringstream response_stream(response_string);
+  ASSERT_FALSE(handler.ParseRedirect(response_stream, redirect_URI, redirect_host));
+}
+
+// test ParseBody
+TEST_F(ReverseProxyHandler_Test, ParseBody){
+  statement->tokens_.push_back(rh);
+  statement->tokens_.push_back(host);
+  config->statements_.push_back(statement);
+  statement2->tokens_.push_back(rp);
+  statement2->tokens_.push_back(port);
+  config->statements_.push_back(statement2);
+  ASSERT_EQ(RequestHandler::OK, handler.Init(uri_prefix, *config));
+
+  boost::asio::streambuf response_buf;
+  std::ostream response_stream(&response_buf);
+  response_stream << "<a href=\"/about\">About</a><img src=\"/img/test.jpg\">";
+
+  std::string expected_body = "<a href=\"/proxy/about\">About</a><img src=\"/proxy/img/test.jpg\">";
+  EXPECT_EQ(expected_body, handler.ParseBody(&response_buf));
+}
+

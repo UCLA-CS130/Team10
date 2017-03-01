@@ -21,7 +21,9 @@ public:
   RequestHandler::Status SendProxyRequest(const std::string& request_string, const std::string& new_host, Response* response,
                                                       const int& attempt_num = 0);
   std::pair<std::string, std::string> ProcessHeaderLine(std::string header);
-
+  bool ParseRedirect(std::istream& response_stream, std::string& redirect_URI,
+                                        std::string& redirect_host);
+  std::string ParseBody(boost::asio::streambuf* response_buf);
 private:
 
   std::string m_remote_host;

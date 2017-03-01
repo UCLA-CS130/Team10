@@ -1,6 +1,7 @@
 #include "reverse_proxy_handler.hpp"
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
@@ -211,7 +212,8 @@ bool ReverseProxyHandler::ParseRedirect(std::istream& response_stream, std::stri
     if (!header.empty())
     {
       std::pair<std::string, std::string> parsed_header = ProcessHeaderLine(header);
-      if (parsed_header.first == "Location")
+      boost::algorithm::to_lower(parsed_header.first);
+      if ( parsed_header.first == "location")
       {
         std::string redirect_URL = parsed_header.second;
         std::cout << "Redirect to " << redirect_URL << std::endl;
@@ -221,6 +223,7 @@ bool ReverseProxyHandler::ParseRedirect(std::istream& response_stream, std::stri
         if (host_start + 2 > redirect_URL.length())
         {
           // There is no valid URL?
+          std::cerr << "No valid URL." << std::endl;
           return false;
         }
         else
@@ -241,7 +244,8 @@ bool ReverseProxyHandler::ParseRedirect(std::istream& response_stream, std::stri
     }
   }
 
-    return false;
+  std::cerr << "Could not find redirect location." << std::endl;
+  return false;
 }
 
 std::string ReverseProxyHandler::ParseBody(boost::asio::streambuf* response_buf)

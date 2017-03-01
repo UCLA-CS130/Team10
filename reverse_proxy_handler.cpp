@@ -1,6 +1,7 @@
 #include "reverse_proxy_handler.hpp"
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
@@ -77,7 +78,8 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 
 
 RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& request_string, const std::string& new_host,
-                                                            Response* response, const int& attempt_num) {
+                                                            Response* response, const int& attempt_num)
+{
   // Create connection to m_remote_host:m_remote_port
   std::cout << "Create connection...\n";
   boost::asio::io_service io_service;
@@ -131,48 +133,19 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
     }
     // Read the headers until we find the location
     // Read the response headers, which are terminated by a blank line.
-    std::string header;
-    while (std::getline(response_stream, header) && header != "\r")
+    std::string redirect_URI = "";
+    std::string redirect_host = "";
+    bool parsed_redirect = ParseRedirect(response_stream, redirect_URI, redirect_host);
+    if (parsed_redirect == false)
     {
-      // Find the new location header
-      if (!header.empty())
-      {
-        std::pair<std::string, std::string> parsed_header = ProcessHeaderLine(header);
-        if (parsed_header.first == "Location")
-        {
-          std::string redirect_URL = parsed_header.second;
-          std::cout << "Redirect to " << redirect_URL << std::endl;
-
-          // Generate new host
-          size_t host_start = redirect_URL.find("//");
-          if (host_start + 2 > redirect_URL.length())
-          {
-            // There is no valid URL?
-            return RequestHandler::INVALID;
-          }
-          else
-          {
-            // Parse the URL to get the host and the new URI
-            redirect_URL = redirect_URL.substr(host_start + 2);
-            size_t host_end = redirect_URL.find("/");
-
-            std::string redirect_host = redirect_URL.substr(0, host_end);
-            std::string redirect_URI = redirect_URL.substr(host_end);
-            if (redirect_URI == "")
-            {
-              redirect_URI = "/";
-            }
-
-            std::string redirect_request =  "GET " + redirect_URI + " HTTP/1.0\r\n\r\n";
-            // Send proxy request to new location
-            return SendProxyRequest(redirect_request, redirect_host, response, attempt_num + 1);
-          }
-        }
-      }
+      return RequestHandler::INVALID;
     }
-
-    // Could not find the location header.
-    return RequestHandler::INVALID;
+    else
+    {
+      std::string redirect_request =  "GET " + redirect_URI + " HTTP/1.0\r\n\r\n";
+      // Send proxy request to new location
+      return SendProxyRequest(redirect_request, redirect_host, response, attempt_num + 1);
+    }
   }
   else if (status_code != Response::ok)
   {
@@ -206,17 +179,8 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
     std::cerr << "Something went wrong..." << std::endl;
     return RequestHandler::INVALID;
   }
-  boost::asio::streambuf::const_buffers_type response_body = response_buf.data();
-  std::string body(boost::asio::buffers_begin(response_body), boost::asio::buffers_begin(response_body) + response_buf.size());
 
-  // Modify response (prepend uri_prefix to beginning of all href and src attributes)
-  if (m_uri_prefix != "/") {
-    std::string new_href = "href=\"" + m_uri_prefix + "/";
-    boost::replace_all(body, "href=\"/", new_href);
-    std::string new_src = "src=\"" + m_uri_prefix + "/";
-    boost::replace_all(body, "src=\"/", new_src);
-  }
-
+  std::string body = ParseBody(&response_buf);
   response->SetStatus(Response::ok);
   response->SetBody(body);
   return RequestHandler::OK;
@@ -236,4 +200,66 @@ std::pair<std::string, std::string> ReverseProxyHandler::ProcessHeaderLine(std::
   }
 
   return std::make_pair( header_field, header_value);
+}
+
+bool ReverseProxyHandler::ParseRedirect(std::istream& response_stream, std::string& redirect_URI,
+                                        std::string& redirect_host)
+{
+  std::string header;
+  while (std::getline(response_stream, header) && header != "\r")
+  {
+    // Find the new location header
+    if (!header.empty())
+    {
+      std::pair<std::string, std::string> parsed_header = ProcessHeaderLine(header);
+      boost::algorithm::to_lower(parsed_header.first);
+      if ( parsed_header.first == "location")
+      {
+        std::string redirect_URL = parsed_header.second;
+        std::cout << "Redirect to " << redirect_URL << std::endl;
+
+        // Generate new host
+        size_t host_start = redirect_URL.find("//");
+        if (host_start + 2 > redirect_URL.length())
+        {
+          // There is no valid URL?
+          std::cerr << "No valid URL." << std::endl;
+          return false;
+        }
+        else
+        {
+          // Parse the URL to get the host and the new URI
+          redirect_URL = redirect_URL.substr(host_start + 2);
+          size_t host_end = redirect_URL.find("/");
+
+          redirect_host = redirect_URL.substr(0, host_end);
+          redirect_URI = redirect_URL.substr(host_end);
+          if (redirect_URI == "")
+          {
+            redirect_URI = "/";
+          }
+          return true;
+        }
+      }
+    }
+  }
+
+  std::cerr << "Could not find redirect location." << std::endl;
+  return false;
+}
+
+std::string ReverseProxyHandler::ParseBody(boost::asio::streambuf* response_buf)
+{
+  boost::asio::streambuf::const_buffers_type response_body = response_buf->data();
+  std::string body(boost::asio::buffers_begin(response_body), boost::asio::buffers_begin(response_body) + response_buf->size());
+
+  // Modify response (prepend uri_prefix to beginning of all href and src attributes)
+  if (m_uri_prefix != "/") {
+    std::string new_href = "href=\"" + m_uri_prefix + "/";
+    boost::replace_all(body, "href=\"/", new_href);
+    std::string new_src = "src=\"" + m_uri_prefix + "/";
+    boost::replace_all(body, "src=\"/", new_src);
+  }
+
+  return body;
 }

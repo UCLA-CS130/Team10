@@ -16,8 +16,6 @@ public:
   ReverseProxyHandler();
   Status Init(const std::string& uri_prefix,
                       const NginxConfig& config);
-  void handle(const boost::system::error_code& ec,
-        std::size_t bytes_transferred);
   Status HandleRequest(const Request& request,
                                Response* response);
   RequestHandler::Status SendProxyRequest(const std::string& request_string, const std::string& new_host, Response* response,

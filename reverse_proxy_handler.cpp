@@ -9,18 +9,12 @@ ReverseProxyHandler::ReverseProxyHandler()
 
 }
 
-void ReverseProxyHandler::handle(const boost::system::error_code& ec,
-        std::size_t bytes_transferred)
-{
-    std::cout << "test";
-}
-
 RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix,
                       const NginxConfig& config)
 {
   m_uri_prefix = uri_prefix;
   m_remote_host = "";
-  m_remote_port = "";
+  m_remote_port = "http";
 
   for ( auto statement : config.statements_ )
   {
@@ -50,16 +44,13 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
                                Response* response)
 {
   // Get the request URI (e.g. /proxy/static/file.txt)
-  
   std::string new_uri = request.uri();
-  std::cout << "uri: " << new_uri << std::endl;
 
   // Generate new URI (/static/file.txt)
   boost::replace_all(new_uri, m_uri_prefix, "");
   if (new_uri == "") {
     new_uri = "/";
   }
-  std::cout << "new uri: " << new_uri << std::endl;
   // Generate new request
   //    GET new_URI HTTP/1.0\r\n\r\n
   std::string new_request = "GET " + new_uri + " HTTP/1.0\r\n\r\n";
@@ -98,7 +89,6 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   // Read response headers
   std::cout << "Reading response...\n";
   boost::asio::read_until(socket, response_buf, "\r\n\r\n");
-
   // Check that response is OK. 
   // Adapted from http://www.boost.org/doc/libs/1_57_0/doc/html/boost_asio/example/cpp03/http/client/sync_client.cpp
   std::istream response_stream(&response_buf);
@@ -108,10 +98,8 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   response_stream >> status_code;
   std::string status_message;
   std::getline(response_stream, status_message);
-  std::cout << "status message: " << status_message << std::endl;
   if (!response_stream || http_version.substr(0, 5) != "HTTP/")
   {
-    std::cout << "http version: " << http_version << std::endl;
     std::cerr << "Invalid response\n";
     return RequestHandler::INVALID;
   }

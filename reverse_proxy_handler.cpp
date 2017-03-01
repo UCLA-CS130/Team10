@@ -45,17 +45,33 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 {
   // Get the request URI (e.g. /proxy/static/file.txt)
   std::string new_uri = request.uri();
+  std::cout << "Original URI: " << new_uri << std::endl;
 
   // Generate new URI (/static/file.txt)
-  boost::replace_all(new_uri, m_uri_prefix, "");
-  if (new_uri == "") {
+  if (m_uri_prefix != "/")
+  {
+    if (new_uri.find(m_uri_prefix) != 0)
+    {
+        // Something is wrong, the prefix does not match the URI.
+        response = nullptr;
+        return RequestHandler::INVALID;
+    }
+    else
+    {
+        // Remove the prefix from the URI to get the file name.
+        new_uri.erase(0, m_uri_prefix.length());
+    }
+  }
+  if (new_uri == "")
+  {
     new_uri = "/";
   }
+  std::cout << "New URI: " << new_uri << std::endl;
   // Generate new request
   //    GET new_URI HTTP/1.0\r\n\r\n
   std::string new_request = "GET " + new_uri + " HTTP/1.0\r\n\r\n";
 
-  std::cout << "SendProxyRequest...\n";
+  std::cout << "Send Proxy Request...\n";
   return SendProxyRequest(new_request, m_remote_host, response);
 }
 
@@ -80,7 +96,6 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   }
 
   // Send request to m_remote_host:m_remote_port
-  std::cout << "request_string: " << request_string << std::endl;
   std::cout << "Writing to socket...\n";
   boost::asio::write(socket, boost::asio::buffer(request_string));
   
@@ -98,13 +113,16 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   response_stream >> status_code;
   std::string status_message;
   std::getline(response_stream, status_message);
+  std::cout << "Status Message: " << status_message << std::endl;
   if (!response_stream || http_version.substr(0, 5) != "HTTP/")
   {
+    std::cout << "HTTP Version: " << http_version << std::endl;
     std::cerr << "Invalid response\n";
     return RequestHandler::INVALID;
   }
   if (status_code == Response::moved_temporarily)
   {
+    std::cout << "Redirect attempt number " << attempt_num << std::endl;
     // Check attempt_num. If >= 5, then we've been redirected too many times.
     if (attempt_num >= 5)
     {
@@ -122,8 +140,33 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
         std::pair<std::string, std::string> parsed_header = ProcessHeaderLine(header);
         if (parsed_header.first == "Location")
         {
-          // Send proxy request to new location
-          return SendProxyRequest(request_string, parsed_header.second, response, attempt_num + 1);
+          std::string redirect_URL = parsed_header.second;
+          std::cout << "Redirect to " << redirect_URL << std::endl;
+
+          // Generate new host
+          size_t host_start = redirect_URL.find("//");
+          if (host_start + 2 > redirect_URL.length())
+          {
+            // There is no valid URL?
+            return RequestHandler::INVALID;
+          }
+          else
+          {
+            // Parse the URL to get the host and the new URI
+            redirect_URL = redirect_URL.substr(host_start + 2);
+            size_t host_end = redirect_URL.find("/");
+
+            std::string redirect_host = redirect_URL.substr(0, host_end);
+            std::string redirect_URI = redirect_URL.substr(host_end);
+            if (redirect_URI == "")
+            {
+              redirect_URI = "/";
+            }
+
+            std::string redirect_request =  "GET " + redirect_URI + " HTTP/1.0\r\n\r\n";
+            // Send proxy request to new location
+            return SendProxyRequest(redirect_request, redirect_host, response, attempt_num + 1);
+          }
         }
       }
     }
@@ -140,7 +183,6 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   std::string header;
   while (std::getline(response_stream, header) && header != "\r")
   {
-    std::cout << header << std::endl;
     // Get the header attribute
     // Get header value
     // Set header attribute/value in response
@@ -161,7 +203,7 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
     // Read whole body
     std::cout << "Read to EOF" << std::endl;
   } else {
-    std::cerr << "Something went wrong...." << std::endl;
+    std::cerr << "Something went wrong..." << std::endl;
     return RequestHandler::INVALID;
   }
   boost::asio::streambuf::const_buffers_type response_body = response_buf.data();

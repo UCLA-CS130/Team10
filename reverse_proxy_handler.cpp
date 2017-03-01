@@ -91,16 +91,12 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   // Send request to m_remote_host:m_remote_port
   std::cout << "request_string: " << request_string << std::endl;
   std::cout << "Writing to socket...\n";
-  // boost::asio::async_write(socket, boost::asio::buffer(request_string), 
-  //                         boost::bind(&ReverseProxyHandler::handle, this, boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
   boost::asio::write(socket, boost::asio::buffer(request_string));
   
   // Parse the response
   boost::asio::streambuf response_buf;
-  // Read response status line
+  // Read response headers
   std::cout << "Reading response...\n";
-
-  //boost::asio::async_read_until(socket, response_buf, "\r\n\r\n", boost::bind(&ReverseProxyHandler::handle, this, boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
   boost::asio::read_until(socket, response_buf, "\r\n\r\n");
 
   // Check that response is OK. 
@@ -170,16 +166,11 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   }
 
   // Read to end of response
-  // Modify response (prepend /proxy to beginning of all href attributes)
-  // (use boost::replace_all?)
   std::cout << "Reading body...\n";
-  // boost::asio::async_read(socket, response_buf,
-  //                         boost::asio::transfer_at_least(1),
-  //                         boost::bind(&ReverseProxyHandler::handle, this,boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
   boost::system::error_code ec;
   boost::asio::read(socket, response_buf, ec);
   if (!ec || ec == boost::asio::error::eof) {
-    // woot, no problem
+    // Read whole body
     std::cout << "Read to EOF" << std::endl;
   } else {
     std::cerr << "Something went wrong...." << std::endl;
@@ -187,11 +178,14 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   }
   boost::asio::streambuf::const_buffers_type response_body = response_buf.data();
   std::string body(boost::asio::buffers_begin(response_body), boost::asio::buffers_begin(response_body) + response_buf.size());
-  //boost::regex regex("href[[:space]]*=[[:space]]*\"");
-  std::string new_href = "href=\"" + m_uri_prefix + "/";
-  boost::replace_all(body, "href=\"/", new_href);
-  std::string new_src = "src=\"" + m_uri_prefix + "/";
-  boost::replace_all(body, "src=\"/", new_href);
+
+  // Modify response (prepend uri_prefix to beginning of all href and src attributes)
+  if (m_uri_prefix != "/") {
+    std::string new_href = "href=\"" + m_uri_prefix + "/";
+    boost::replace_all(body, "href=\"/", new_href);
+    std::string new_src = "src=\"" + m_uri_prefix + "/";
+    boost::replace_all(body, "src=\"/", new_src);
+  }
 
   response->SetStatus(Response::ok);
   response->SetBody(body);

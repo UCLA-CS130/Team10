@@ -85,7 +85,14 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   boost::asio::io_service io_service;
   boost::asio::ip::tcp::resolver resolver(io_service);
   boost::asio::ip::tcp::resolver::query query(new_host, m_remote_port);
-  boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+  boost::system::error_code resolve_error;
+  boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, resolve_error);
+  if (resolve_error) {
+    std::cerr << "Host not found: " << new_host << std::endl;
+    response = nullptr;
+    return RequestHandler::INVALID;
+  }
+
   boost::asio::ip::tcp::resolver::iterator end;
 
   boost::asio::ip::tcp::socket socket(io_service);
@@ -138,6 +145,7 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
     bool parsed_redirect = ParseRedirect(response_stream, redirect_URI, redirect_host);
     if (parsed_redirect == false)
     {
+      std::cerr << "Could not parse redirect message" << std::endl;
       return RequestHandler::INVALID;
     }
     else
@@ -149,6 +157,7 @@ RequestHandler::Status ReverseProxyHandler::SendProxyRequest(const std::string& 
   }
   else if (status_code != Response::ok)
   {
+    std::cerr << "Invalid response. Status code: " << status_code << std::endl;
     return RequestHandler::INVALID;
   }
 

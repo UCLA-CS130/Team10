@@ -48,7 +48,7 @@ void Server::run()
   // for new incoming connections.
   // Create a pool of threads to run all of the io_services.
   std::vector<boost::shared_ptr<boost::thread> > threads;
-  size_t thread_pool_size_ = 5;
+  size_t thread_pool_size_ = 4;
   for (std::size_t i = 0; i < thread_pool_size_; ++i)
   {
     boost::shared_ptr<boost::thread> thread(new boost::thread(

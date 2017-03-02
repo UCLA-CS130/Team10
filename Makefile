@@ -4,7 +4,7 @@ CPPFLAGS+=-std=c++11 -Wall
 CPPFLAGS+=-g
 
 CPPFLAGS+=-pthread
-LDFLAGS+=-lboost_system
+LDFLAGS+=-lboost_system -lboost_thread
 
 UNIT_TESTS_DIR=unit_tests
 GMOCK_DIR=googletest/googlemock

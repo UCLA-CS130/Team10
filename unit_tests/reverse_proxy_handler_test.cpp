@@ -2,10 +2,8 @@
 #include "../reverse_proxy_handler.hpp"
 #include "../config_parser.hpp"
 
-
-
 // test fixture used in following test
-class ReverseProxyHandler_Test:public::testing::Test{
+class ReverseProxyHandler_Test: public::testing::Test {
 protected:
   ReverseProxyHandler handler;
   Response response;
@@ -23,6 +21,51 @@ protected:
   std::string port = "3001";
 };
 
+class SendProxyRequest_Test: public::testing::Test {
+protected:
+  ReverseProxyHandler handler;
+  Response response;
+  std::shared_ptr<NginxConfig> config = std::make_shared<NginxConfig>();
+  std::shared_ptr<NginxConfigStatement> statement = std::make_shared<NginxConfigStatement>();
+  std::string uri_prefix = "/proxy";
+  std::string rh = "remote_host";
+  std::string host = "www.ucla.edu";
+
+};
+
+
+TEST_F(SendProxyRequest_Test, Valid){
+  statement->tokens_.push_back(rh);
+  statement->tokens_.push_back(host);
+  config->statements_.push_back(statement);
+  handler.Init(uri_prefix, *config);
+  std::string request_string = "GET / HTTP/1.0\r\n\r\n";
+  RequestHandler::Status status = handler.SendProxyRequest(request_string, host, &response);
+  EXPECT_EQ(RequestHandler::OK, status);
+}
+
+//give invalid host
+TEST_F(SendProxyRequest_Test, InvalidHost){
+  std::string invalid_host = "wwwwww";  
+  statement->tokens_.push_back(rh);
+  statement->tokens_.push_back(invalid_host);
+  config->statements_.push_back(statement);
+  handler.Init(uri_prefix, *config);
+  std::string request_string = "GET / HTTP/1.0\r\n\r\n";
+  RequestHandler::Status status = handler.SendProxyRequest(request_string, invalid_host, &response);
+
+  EXPECT_EQ(RequestHandler::INVALID, status);
+}
+
+TEST_F(SendProxyRequest_Test, Redirect){
+  statement->tokens_.push_back(rh);
+  statement->tokens_.push_back(host);
+  config->statements_.push_back(statement);
+  handler.Init(uri_prefix, *config);
+  std::string request_string = "GET /about/chancellor HTTP/1.0\r\n\r\n";
+  RequestHandler::Status status = handler.SendProxyRequest(request_string, host, &response);
+  EXPECT_EQ(RequestHandler::OK, status);
+}
 
 // Test Failing Init (empty)
 TEST_F(ReverseProxyHandler_Test, Init_Fail){

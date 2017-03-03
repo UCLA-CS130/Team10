@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     if (server_config->Init(argv[1]))
     {
       // Initialise the server.
-      std::cout << "The server is going to runn on port " << server_config->Port() <<"..."<< std::endl;
+      std::cout << "The server is going to run on port " << server_config->Port() <<"..."<< std::endl;
       Server* server = new Server("0.0.0.0", *server_config);
 
       // Run the server until stopped.

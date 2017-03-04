@@ -15,6 +15,7 @@ connection::connection(boost::asio::io_service& io_service,
   : socket_(io_service),
     connection_manager_(manager)
 {
+  std::cout << "A connection is constructed...\n";
 }
 
 boost::asio::ip::tcp::socket& connection::socket()

@@ -4,7 +4,7 @@ CPPFLAGS+=-std=c++11 -Wall
 CPPFLAGS+=-g
 
 CPPFLAGS+=-pthread
-LDFLAGS+=-lboost_system
+LDFLAGS+=-lboost_system -lboost_thread
 
 UNIT_TESTS_DIR=unit_tests
 GMOCK_DIR=googletest/googlemock
@@ -36,10 +36,10 @@ libgmock.a:
 	ar -rv libgmock.a gmock-all.o
 
 %_test: %_test.cpp libgtest.a libgmock.a
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(TEST_CLASSES) $(TESTS:=.cpp) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -fprofile-arcs -ftest-coverage -o $@ -lboost_system
+	g++ -std=c++11 -isystem ${GTEST_DIR}/include -pthread $(TEST_CLASSES) $(TESTS:=.cpp) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -fprofile-arcs -ftest-coverage -o $@ -lboost_system -lboost_thread
 
 server_test: $(UNIT_TESTS_DIR)/server_test.cpp libgtest.a libgmock.a
-	g++ -std=c++11 -isystem ${GTEST_DIR}/include -isystem ${GMOCK_DIR}/include -pthread $(UNIT_TESTS_DIR)/server_test.cpp server.cpp ${GMOCK_DIR}/src/gmock_main.cc libgtest.a libgmock.a -fprofile-arcs -ftest-coverage -o server_test -lboost_system
+	g++ -std=c++11 -isystem ${GTEST_DIR}/include -isystem ${GMOCK_DIR}/include -pthread $(UNIT_TESTS_DIR)/server_test.cpp server.cpp ${GMOCK_DIR}/src/gmock_main.cc libgtest.a libgmock.a -fprofile-arcs -ftest-coverage -o server_test -lboost_system -lboost_thread
 
 test: $(TESTS)
 	for test in $(TESTS); do ./$$test; done

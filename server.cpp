@@ -7,7 +7,7 @@
 #include "server.hpp"
 #include <boost/bind.hpp>
 #include <signal.h>
-
+#include <boost/thread/thread.hpp>
 
 
 Server::Server(const std::string& address, const ServerConfig& config)
@@ -46,14 +46,26 @@ void Server::run()
   // have finished. While the server is running, there is always at least one
   // asynchronous operation outstanding: the asynchronous accept call waiting
   // for new incoming connections.
-  io_service_.run();
+  // Create a pool of threads to run all of the io_services.
+  std::vector<boost::shared_ptr<boost::thread> > threads;
+  size_t thread_pool_size_ = 4;
+  for (std::size_t i = 0; i < thread_pool_size_; ++i)
+  {
+    boost::shared_ptr<boost::thread> thread(new boost::thread(
+          boost::bind(&boost::asio::io_service::run, &io_service_)));
+    threads.push_back(thread);
+  }
+
+  // Wait for all threads in the pool to exit.
+  for (std::size_t i = 0; i < threads.size(); ++i)
+    threads[i]->join();
 }
 
 void Server::start_accept()
 {
-  // TODO: Feed correct request_handers under different situation.
+  std::cout << "The server starts to accept...\n";
   new_connection_.reset(new connection(io_service_,
-        connection_manager_));//, config_.Handler_map()));
+        connection_manager_));
   acceptor_.async_accept(new_connection_->socket(),
       boost::bind(&Server::handle_accept, this,
         boost::asio::placeholders::error));
@@ -63,6 +75,7 @@ void Server::handle_accept(const boost::system::error_code& e)
 {
   // Check whether the server was stopped by a signal before this completion
   // handler had a chance to run.
+  std::cout << "The server handles accept...\n";
   if (!acceptor_.is_open())
   {
     return;

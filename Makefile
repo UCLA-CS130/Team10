@@ -3,8 +3,8 @@ all: release
 CPPFLAGS+=-std=c++11 -Wall
 CPPFLAGS+=-g
 
-CPPFLAGS+=-pthread
-LDFLAGS+=-lboost_system -lboost_thread
+CPPFLAGS+=-static-libgcc -static-libstdc++ -pthread
+LDFLAGS+=-Wl,-Bstatic -lboost_system -lboost_thread
 
 UNIT_TESTS_DIR=unit_tests
 GMOCK_DIR=googletest/googlemock

@@ -9,6 +9,9 @@ unit_tests/*
 !unit_tests/*.*
 !unit_tests/*/
 
+#Ignore tar files
+*.tar
+
 #gcc object files
 *.o
 *.a

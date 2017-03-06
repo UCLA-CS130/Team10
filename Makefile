@@ -48,4 +48,7 @@ webserver: $(CLASSES)
 	$(CXX) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
-	rm -f *.o *.a *.gcno *.gcda *.gcov gtest* webserver *_test
+	rm -rf *.o *.a *.gcno *.gcda *.gcov gtest* webserver *_test deploy/
+
+dist:	;
+	./deploy.sh

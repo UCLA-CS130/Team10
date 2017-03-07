@@ -42,6 +42,6 @@ tar xzvf dist.tar.gz
 
 # Build and run webserver from shrunken image
 docker build -t webserver deploy
-docker run --rm -t -p 80:80 webserver &
+docker run --rm -t -p 80:3000 webserver
 
 '"

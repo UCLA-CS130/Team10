@@ -13,6 +13,9 @@ unit_tests/*
 *.tar
 *.tar.gz
 
+# Ignore private keys
+*.pem
+
 # gcc object files
 *.o
 *.a

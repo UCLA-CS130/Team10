@@ -2,15 +2,6 @@
 docker build -t webserver.build .
 docker run webserver.build > binary.tar
 
-# TODO: Connect via SCP
-# TODO: SCP the binary file over
-# TODO: SCP the demo directory over
-# TODO: SSH into the EC2 Container
-# TODO: tar the binary.tar file
-# TODO: Delete the binary file
-# TODO: Create Dockerfile.run
-# TODO: Build and run webserver
-
 # Create deployment directory
 mkdir deploy/
 
@@ -34,9 +25,23 @@ tar czf dist.tar.gz deploy
 # remove directory when done
 rm -rf deploy/
 
-# scp
+REMOTE="ec2-user@ec2-35-163-65-169.us-west-2.compute.amazonaws.com"
 
+# scp
+scp -i Admin.pem dist.tar.gz $REMOTE:~/.
+
+# ssh
+ssh -i Admin.pem $REMOTE bash -c "'
+
+# stop webserver
+docker ps -q --filter ancestor=webserver | xargs docker kill
+
+# untar into webserver directory
+rm -rf deploy
+tar xzvf dist.tar.gz
 
 # Build and run webserver from shrunken image
-# docker build -t webserver deploy
-# docker run --rm -t -p 3000:3000 webserver
+docker build -t webserver deploy
+docker run --rm -t -p 80:80 webserver &
+
+'"

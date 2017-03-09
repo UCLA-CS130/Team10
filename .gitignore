@@ -4,19 +4,26 @@
 !*/
 !googletest
 
-#Ignore all test binaries
+# Ignore all test binaries
 unit_tests/*
 !unit_tests/*.*
 !unit_tests/*/
 
-#gcc object files
+# Ignore tar files
+*.tar
+*.tar.gz
+
+# Ignore private keys
+*.pem
+
+# gcc object files
 *.o
 *.a
 
-#gcov files
+# gcov files
 *.gcda
 *.gcno
 *.gcov
 
-#Mac things
+# Mac things
 .DS_Store

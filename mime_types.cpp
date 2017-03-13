@@ -24,7 +24,7 @@ struct mapping
   { "html", "text/html" },
   { "jpg", "image/jpeg" },
   { "png", "image/png" },
-  {"md", "text/html"}
+  {"md", "text/html"},
   { 0, 0 } // Marks end of list.
 };
 

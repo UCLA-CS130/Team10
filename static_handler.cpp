@@ -8,58 +8,73 @@
 #include <fstream>
 #include <sstream>
 #include "mime_types.hpp"
+#include "encoder.hpp"
 
 StaticHandler::StaticHandler()
-{
-
-}
+{}
 
 RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix,
                       const NginxConfig& config)
 {
   m_uri_prefix = uri_prefix;
+  m_compression_enabled = false;
+  m_static_path = "";
+
   for ( auto statement : config.statements_ )
   {
     for (auto token: statement->tokens_)
     {
-      if (token == "root" && statement->tokens_.size()==2){
+      if (token == "root" && statement->tokens_.size()==2)
+      {
         m_static_path= statement->tokens_[1];
-        return RequestHandler::OK;
+      }
+      else if (token == "compression" && statement->tokens_.size()==2)
+      {
+        if (statement->tokens_[1] == "enabled")
+          m_compression_enabled = true;
       }
     }
   }
-  return RequestHandler::INVALID;
+  if (m_static_path == "")
+    return RequestHandler::INVALID;
+  return RequestHandler::OK;
 }
 
 RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
                                Response* response)
 {
   std::cout << "FileHandler HandleRequest...\n";
+
+  std::string accepted_encodings = "";
+  for (auto const& header: request.headers()) 
+  {
+      std::cout << header.first << ": " << header.second << std::endl;
+      if (header.first == "Accept-Encoding")
+      {
+        accepted_encodings = header.second;
+      }
+  }
+
   // Decode url to path.
   std::string request_path;
   if (!url_decode(request.uri(), request_path))
   {
-    //response = reply::stock_reply(reply::bad_request);
     std::cerr << "Invalid url\n";
     return RequestHandler::INVALID;
   }
-
 
   // Request path must be absolute and not contain "..".
   if (request_path.empty() || request_path[0] != '/'
       || request_path.find("..") != std::string::npos)
   {
-    // response = reply::stock_reply(reply::bad_request);
     std::cerr << "Request path must be absolute and should not contain \"..\"\n";
     return RequestHandler::INVALID;
   }
 
   // This case may never happen. It is catched by NotFoundHandler
   if (request_path.substr(0,m_uri_prefix.length()) != m_uri_prefix) {
-    //rep = reply::stock_reply(reply::bad_request);
     return RequestHandler::INVALID;
   }
-
 
   // If path ends in slash (i.e. is a directory) then add "index.html".
   if (request_path[request_path.size() - 1] == '/')
@@ -82,7 +97,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
   if (!is)
   {
-    // rep = reply::stock_reply(reply::not_found);
     std::cerr << "Cannot open file \"" << full_path << "\"...\n";
     return RequestHandler::INVALID;
   }
@@ -96,8 +110,14 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   {
     to_send.append(buf, is.gcount());
   }
+
+  std::pair<std::string, std::string> content_encoding_header(std::string("Content-Encoding"), std::string("identity"));
+
+  m_encoder.encode(to_send, content_encoding_header, accepted_encodings);
+  
   response->SetBody(to_send);
   response->SetStatus(Response::ok);
+  response->AddHeader(content_encoding_header);
   response->AddHeader("Content-Length", std::to_string(response->ContentLength()));
   response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
   return RequestHandler::OK;

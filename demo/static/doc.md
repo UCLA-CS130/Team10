@@ -25,7 +25,7 @@
 
   `$ ./webserver ./demo/config.conf`
 
-  `$ GET http://localhost:3000/static/README.md`
+  `$ GET http://localhost:3000/static/doc.md`
 
 This exact file should be spat back out in HTML format.
 

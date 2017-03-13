@@ -1,13 +1,7 @@
-# Our design documentation was written in Markdown :)
-
-
-
 ## Usage
 
 `$ make`
-
 `$ ./webserver ./demo/config.conf`
-
 
 
 #### List of Handlers:
@@ -18,6 +12,8 @@
 4. NotFoundHandler - any uri not included above
 5. ReverseProxyHandler - /proxy
 
+---
+
 #### List of Features added
 
 1. Markdown rendering
@@ -25,21 +21,38 @@
   * Demo:
 
   `$ make`
-
   `$ ./webserver ./demo/config.conf`
-
   `$ GET http://localhost:3000/static/README.md`
+This exact file should be spat back out in HTML format.
 
-  * This exact file should be spat back out in HTML format.
+2. HTTP compression
+  * supports gzip and deflate compression algorithms
+  * List of commands that can be used to test...
+    * telnet localhost 3000
+      GET /static/ HTTP/1.1
+      Accept-Encoding: gzip
+    * telnet localhost 3000
+      GET /static/ HTTP/1.1
+      Accept-Encoding: deflate
+    * telnet localhost 3000
+      GET /static/ HTTP/1.1
+      Accept-Encoding: deflate;q=.5, gzip
+    * telnet localhost 3000
+      GET /static/ HTTP/1.1
+      Accept-Encoding: br
 
-
-2. Gzip compression
+  The first and second commands demonstrate the two different
+  compression algorithms. The third command shows quality-values,
+  which determines the client's preference for a specific algorithm.
+  The last command demonstrates that if the encoding is unrecognized,
+  there is a fallback default encoding that prevents the server from
+  breaking.
 
 3. AWS hosting
   * Root URL: http://ec2-35-163-65-169.us-west-2.compute.amazonaws.com
 
 ## Testing
-
+---
 #### Unit testing
 
 `$ make debug`
@@ -48,20 +61,29 @@
 
 
 `$ sudo apt-get install python-pip`
-
 `$ sudo pip install psutil`
-
 `$ make int`
 
+---
 
-## Quick Guide to adding new Handlers
+## Design Decisions
+
+For the purposes of our features, our design decisions were mainly
+how we wanted to utilize the Markdown renderer - either as a
+separate type of StaticHandler, or just integrated within it.
+In the end, we agreed that the Markdown rendering library should be
+integrated into our exsting StaticHandler since they essentially
+perform the same task, and Markdown only requires one further "step"
+to be able to be displayed as HTML.
+
+### Quick Guide to adding new Handlers
 
 1. Create your handler hpp and cpp files
 2. Add your Handler configuration in the config.conf file
 3. You can add any special behavior with other Handlers in connection.cpp, where
 the handle_read method will control which Handler to use.
 
-## Source Code Structure
+### Source Code Structure
 
 Our main.cpp instantiates a Server object, which takes in a ServerConfig object,
 as well as the host address. The Server then creates a map of pointers to Handlers

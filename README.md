@@ -8,5 +8,7 @@ $ make
 $ ./webserver ./demo/config.conf
 ```
 
+Documentation: ./static/doc.md
+
 ### Code skeleton
 http://www.boost.org/doc/libs/1_57_0/doc/html/boost_asio/examples/cpp03_examples.html

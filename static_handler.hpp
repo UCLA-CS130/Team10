@@ -24,7 +24,6 @@ public:
 private:
   std::string m_uri_prefix;
   std::string m_static_path;
-  Encoder m_encoder;
   bool m_compression_enabled;
   bool url_decode(const std::string& in, std::string& out);
 };

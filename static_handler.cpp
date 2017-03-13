@@ -112,7 +112,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
 
   std::pair<std::string, std::string> content_encoding_header(std::string("Content-Encoding"), std::string("identity"));
 
-  m_encoder.encode(to_send, content_encoding_header, accepted_encodings);
+  Encoder::encode(to_send, content_encoding_header, accepted_encodings);
   
   response->SetBody(to_send);
   response->SetStatus(Response::ok);

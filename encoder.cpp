@@ -46,7 +46,7 @@ Encoder::EncodingType Encoder::choose_encoding(const std::string& accepted_encod
     return EncodingType::IDENTITY;
 }
 
-bool Encoder::encode(std::string &body, std::pair<std::string, std::string> &content_encoding_header, std::string accepted_encodings) {
+void Encoder::encode(std::string &body, std::pair<std::string, std::string> &content_encoding_header, std::string accepted_encodings) {
     EncodingType encoding_type = choose_encoding(accepted_encodings);
     switch(encoding_type) {
         case GZIP:
@@ -60,10 +60,9 @@ bool Encoder::encode(std::string &body, std::pair<std::string, std::string> &con
         default:
             break;
     }
-    return true;
 }
 
-bool Encoder::gzip_compress(std::string& str)
+void Encoder::gzip_compress(std::string& str)
 {
     boost::iostreams::gzip_params params;
     params.level = boost::iostreams::gzip::best_compression;
@@ -75,10 +74,9 @@ bool Encoder::gzip_compress(std::string& str)
     stream << str;
     boost::iostreams::close(stream);
     str = result.str();
-    return true;
 }
 
-bool Encoder::deflate_compress(std::string& str)
+void Encoder::deflate_compress(std::string& str)
 {
     boost::iostreams::zlib_params params;
     params.level = boost::iostreams::zlib::best_compression;
@@ -91,5 +89,4 @@ bool Encoder::deflate_compress(std::string& str)
     stream << str;
     boost::iostreams::close(stream);
     str = result.str();
-    return true;
 }

@@ -1,60 +1,134 @@
 #include "request.hpp"
-
+#include <string.h>
+#include <vector>
+#include <map>
+#include <utility>
+#include <cstdio>
+#include <memory>
 
 
 Request::Request()
 {
 }
 
-std::unique_ptr<Request> Request::Parse(const std::string& raw_request)
-{
-  std::unique_ptr<Request> req(new Request());
-  req->m_raw_request = raw_request;
+std::unique_ptr<Request> Request::Parse(const std::string& raw_request){
+  Request* req = new Request();
 
-  int space_count = 0;
-  std::string method = "";
-  std::string url = "";
-  std::string version = "";
-
-  for(unsigned int i = 0; i < raw_request.size(); i++){
-    if(raw_request[i] == '\r')
-      break;
-    if(raw_request[i] == ' '){
-      //TODO: error handling
-      space_count++;
-      continue;
-    }
-
-    switch(space_count){
-      case 0:
-        method += raw_request[i];
-        break;
-      case 1:
-        url += raw_request[i];
-        break;
-      case 2:
-        version += raw_request[i];
-        break;
-      default:
-      // TODO: error handling
-      break;
-    }
+  if(req->ParseRequest(raw_request)){
+    std::unique_ptr<Request> ret;
+    ret.reset(req);
+    return ret;
   }
-  if (method != "GET" && method != "POST") {
-      //TODO: error handling
+  else{
+    return std::unique_ptr<Request>(nullptr);
   }
-  if (version != "HTTP/1.0" && version != "HTTP/1.1") {
-    //TODO: error handling
-  }
-  if (url.size() < 1){
-    //TODO: error handling
-    //req->m_error = 400;
-  }
-  req->m_method = method;
-  req->m_uri = url;
-  req->m_version = version;
-  return req;
 }
+
+
+bool Request::processRequestLine(const std::string& request){
+  //get the first CRLF which comes right after the request line
+  std::size_t end_request_ln_idx = request.find("\r\n");
+  if(end_request_ln_idx==std::string::npos){
+    printf("Invalid Request Line CRLF");
+    return false;
+  }
+  std::string request_line = request.substr(0,end_request_ln_idx);
+  this->m_request_line = request_line;
+
+  //split the request line into tokens and push them onto a temp vector
+  char* token = strtok(&request_line[0], " ");
+  std::vector<std::string> request_fields;
+  while(token!=NULL){
+    std::string temp(token);
+    request_fields.push_back(temp);
+    token = strtok(NULL," ");
+  }
+  if(request_fields.size()!=3){
+    printf("Invalid Request Line fields");
+    return false;
+  }
+  
+  this->m_method = request_fields[0];
+  this->m_uri = request_fields[1];
+  this->m_version = request_fields[2];
+  
+  return true;
+}
+
+bool Request::processMessageBody(const std::string& request){
+  std::size_t body_start_inx = request.find("\r\n\r\n");
+  if(body_start_inx==std::string::npos){
+    printf("Invalid end of request");
+    return false;
+  }
+  this->m_body = request.substr(body_start_inx+4);
+  return true;
+
+}
+
+bool Request::processHeaders(const std::string& request){
+  //the CRLF at the end of the request line
+  std::size_t start_idx = request.find("\r\n");
+  //the CRLFs preceding the start of the optional message body 
+  std::size_t end_idx = request.find("\r\n\r\n");
+  if(start_idx == end_idx){
+    //if there is no header at all
+    return true;
+  }
+  else{
+    start_idx = start_idx + 2;
+    end_idx = end_idx -1;
+    int length = end_idx + 1 - start_idx;
+    std::string headers_str = request.substr(start_idx,length);
+    std::size_t cut = 0;
+    std::vector<std::string> temp_headers;
+    std::string delimiter = "\r\n";
+
+    //put each line in the header_string into a temp vector
+    while ((cut = headers_str.find(delimiter)) != std::string::npos) {
+        temp_headers.push_back(headers_str.substr(0, cut));
+        headers_str.erase(0, cut + delimiter.length());
+    }
+    temp_headers.push_back(headers_str);
+
+    //for each line of header: value, put it mapping into the map
+    for(std::size_t i = 0; i < temp_headers.size(); i++){
+      std::string cur_header_line = temp_headers[i];
+      std::size_t header_value_cut = cur_header_line.find(":");
+      if(header_value_cut==std::string::npos){
+        printf("Invalid header");
+        return false;
+      }
+      std::string cur_header = cur_header_line.substr(0,header_value_cut);
+      //header_value_cut+2 because there is a white space right after the ':''
+      std::string cur_value = cur_header_line.substr(header_value_cut+2);
+      this->m_header_fields[cur_header] = cur_value;
+    }
+  }
+
+  return true;
+}
+
+bool Request::ParseRequest(const std::string& request){
+  if(!processRequestLine(request)){
+    return false;
+  }
+  if(!processMessageBody(request)){
+    return false;
+  }
+  if(!processHeaders(request)){
+    return false;
+  }
+  this->m_raw_request = request;
+
+  for(const auto& a_mapping: this->m_header_fields){
+    auto temp_pair = std::make_pair(a_mapping.first, a_mapping.second);
+    m_headers.push_back(temp_pair);
+  }
+
+  return true;
+}
+
 
 std::string Request::raw_request() const
 {

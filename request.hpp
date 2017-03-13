@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-
+#include <map>
 
 
 /// A request received from a client.
@@ -29,15 +29,21 @@ public:
 
   using Headers = std::vector<std::pair<std::string, std::string>>;
   Headers headers() const;
-
   std::string body() const;
+
 private:
+  bool ParseRequest(const std::string& request);
+  bool processRequestLine(const std::string& request);
+  bool processMessageBody(const std::string& request);
+  bool processHeaders(const std::string& request);
   std::string m_raw_request;
   std::string m_method;
   std::string m_uri;
   std::string m_version;
   std::string m_body;
+  std::string m_request_line;
   Headers m_headers;
+  std::map<std::string,std::string> m_header_fields;
 };
 
 

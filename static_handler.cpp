@@ -9,6 +9,8 @@
 #include <sstream>
 #include "mime_types.hpp"
 #include "encoder.hpp"
+#include "markdown.hpp"
+
 
 StaticHandler::StaticHandler()
 {}
@@ -105,9 +107,18 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   char buf[512];
   std::string to_send;
   // May not work with a large file
-  while (is.read(buf, sizeof(buf)).gcount() > 0)
-  {
-    to_send.append(buf, is.gcount());
+  if(extension == "md"){
+    markdown::Document doc;
+    std::istream *in = &is;
+    std::ostringstream ss;
+    doc.read(*in);
+    doc.write(ss);
+    to_send = ss.str();
+  }
+  else{
+    while (is.read(buf, sizeof(buf)).gcount() > 0){
+      to_send.append(buf, is.gcount());
+    }
   }
 
   std::pair<std::string, std::string> content_encoding_header(std::string("Content-Encoding"), std::string("identity"));

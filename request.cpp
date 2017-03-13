@@ -1,3 +1,5 @@
+//Robust request parsing adapted from: https://github.com/UCLA-CS130/Caviar-Hacker-Grid/blob/master/http/httpResponse.cc
+
 #include "request.hpp"
 #include <string.h>
 #include <vector>
@@ -8,8 +10,7 @@
 
 
 Request::Request()
-{
-}
+{}
 
 std::unique_ptr<Request> Request::Parse(const std::string& raw_request){
   Request* req = new Request();

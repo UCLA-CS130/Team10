@@ -48,7 +48,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   std::string accepted_encodings = "";
   for (auto const& header: request.headers()) 
   {
-      std::cout << header.first << ": " << header.second << std::endl;
       if (header.first == "Accept-Encoding")
       {
         accepted_encodings = header.second;

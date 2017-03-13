@@ -13,10 +13,8 @@ void Encoder::trim(std::string& str) {
 }
 
 Encoder::EncodingType Encoder::choose_encoding(const std::string& accepted_encodings) {
-    std::cout << "we're not crazy: " << accepted_encodings << std::endl;
     std::string trimmed_accepted_encodings = accepted_encodings;
     trim(trimmed_accepted_encodings);
-    std::cout << "Strip whitespace: " << trimmed_accepted_encodings << std::endl;
     std::vector<std::string> encodings;
     strtk::parse(trimmed_accepted_encodings, ",", encodings);
 
@@ -26,7 +24,11 @@ Encoder::EncodingType Encoder::choose_encoding(const std::string& accepted_encod
             if (encoding[i] == ';') {
                 std::string algo = encoding.substr(0, i);
                 float q_value = std::stof(encoding.substr(i + 1));
+                std::cout << "pairs: " << algo << ": " << q_value << std::endl;
                 encoding_map.insert(std::make_pair(q_value, algo));
+            }
+            else {
+                encoding_map.insert(std::make_pair(1.0, encoding));
             }
         }
     }
@@ -36,9 +38,11 @@ Encoder::EncodingType Encoder::choose_encoding(const std::string& accepted_encod
     if (it != encoding_map.end()) {
         encoding_type_string = it->second;
     }
-    std::cout << "Encoding type string" << encoding_type_string << std::endl;
+
     if (encoding_type_string == "gzip") {
         return EncodingType::GZIP;
+    } else if (encoding_type_string == "deflate") {
+        return EncodingType::DEFLATE;
     }
     return EncodingType::IDENTITY;
 }
@@ -47,9 +51,12 @@ bool Encoder::encode(std::string &body, std::pair<std::string, std::string> &con
     EncodingType encoding_type = choose_encoding(accepted_encodings);
     switch(encoding_type) {
         case GZIP:
-            std::cout << "potato" << std::endl;
             gzip_compress(body);
             content_encoding_header.second = "gzip";
+            break;
+        case DEFLATE:
+            deflate_compress(body);
+            content_encoding_header.second = "deflate";
             break;
         default:
             break;
@@ -65,6 +72,22 @@ bool Encoder::gzip_compress(std::string& str)
     std::stringstream result;
     boost::iostreams::filtering_ostream stream;
     stream.push(boost::iostreams::gzip_compressor());
+    stream.push(result);
+    stream << str;
+    boost::iostreams::close(stream);
+    str = result.str();
+    return true;
+}
+
+bool Encoder::deflate_compress(std::string& str)
+{
+    boost::iostreams::zlib_params params;
+    params.level = boost::iostreams::zlib::best_compression;
+    params.noheader = true;
+
+    std::stringstream result;
+    boost::iostreams::filtering_ostream stream;
+    stream.push(boost::iostreams::zlib_compressor(params));
     stream.push(result);
     stream << str;
     boost::iostreams::close(stream);

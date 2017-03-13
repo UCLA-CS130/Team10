@@ -12,14 +12,13 @@ class Encoder
         enum EncodingType
         {
             IDENTITY,
-            GZIP
+            GZIP,
+            DEFLATE
         };
 
         EncodingType choose_encoding(const std::string& accepted_encodings);
         bool gzip_compress(std::string &str);
-        //Rest of actual encoding work
-
-
+        bool deflate_compress(std::string &str);
         void trim(std::string& str);
 };
 

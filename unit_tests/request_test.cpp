@@ -3,7 +3,6 @@
 #include "gtest/gtest.h"
 
 TEST(RequestTest, ToStringTest){
-  std::cout << "~~~~~potato~~~~~~~" << std::endl;
   std::string raw_request = "GET /echo HTTP/1.1\r\n\r\n";
   auto request = Request::Parse(raw_request);
   EXPECT_EQ("GET",request->method());

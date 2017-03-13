@@ -14,7 +14,7 @@ protected:
   std::shared_ptr<NginxConfigStatement> statement = std::make_shared<NginxConfigStatement>();
 
   std::string uri_prefix = "/static";
-  std::string request_url  = "GET /static/index.html HTTP/1.1\r\ntest\r\n\r\n";
+  std::string request_url  = "GET /static/index.html HTTP/1.1\r\n\r\n";
   std::unique_ptr<Request> request = Request::Parse(request_url);
 
   std::string in1 = "http://github.com";

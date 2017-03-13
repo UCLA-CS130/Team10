@@ -42,7 +42,7 @@ server_test: $(UNIT_TESTS_DIR)/server_test.cpp libgtest.a libgmock.a
 	g++ -std=c++11 -isystem ${GTEST_DIR}/include -isystem ${GMOCK_DIR}/include -pthread $(UNIT_TESTS_DIR)/server_test.cpp server.cpp ${GMOCK_DIR}/src/gmock_main.cc libgtest.a libgmock.a -fprofile-arcs -ftest-coverage -o server_test -lboost_system -lboost_thread 
 
 test: $(TESTS)
-	for test in $(TESTS); do ./$$test; done
+	for test in $(TESTS); do ./$$test || exit $1 ; done
 
 webserver: $(CLASSES)
 	$(CXX) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)

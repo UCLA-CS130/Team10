@@ -24,7 +24,6 @@ Encoder::EncodingType Encoder::choose_encoding(const std::string& accepted_encod
             if (encoding[i] == ';') {
                 std::string algo = encoding.substr(0, i);
                 float q_value = std::stof(encoding.substr(i + 1));
-                std::cout << "pairs: " << algo << ": " << q_value << std::endl;
                 encoding_map.insert(std::make_pair(q_value, algo));
             }
             else {

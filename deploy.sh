@@ -1,3 +1,5 @@
+REMOTE="ec2-user@ec2-35-166-173-104.us-west-2.compute.amazonaws.com"
+
 # build tar file
 docker build -t webserver.build .
 docker run webserver.build > binary.tar
@@ -25,13 +27,11 @@ tar czf dist.tar.gz deploy
 # remove directory when done
 rm -rf deploy/
 
-REMOTE="ec2-user@ec2-35-163-65-169.us-west-2.compute.amazonaws.com"
-
 # scp
-scp -i Admin.pem dist.tar.gz $REMOTE:~/.
+scp -i $AWS_PRIVATE_KEY dist.tar.gz $REMOTE:~/.
 
 # ssh
-ssh -i Admin.pem $REMOTE bash -c "'
+ssh -i $AWS_PRIVATE_KEY $REMOTE bash -c "'
 
 # stop webserver
 docker ps -q --filter ancestor=webserver | xargs docker kill

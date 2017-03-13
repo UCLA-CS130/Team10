@@ -1,6 +1,7 @@
 ## Usage
 
 `$ make`
+
 `$ ./webserver ./demo/config.conf`
 
 
@@ -21,8 +22,11 @@
   * Demo:
 
   `$ make`
+
   `$ ./webserver ./demo/config.conf`
-  `$ GET http://localhost:3000/static/README.md`
+
+  `$ GET http://localhost:3000/static/doc.md`
+
 This exact file should be spat back out in HTML format.
 
 2. HTTP compression
@@ -61,7 +65,9 @@ This exact file should be spat back out in HTML format.
 
 
 `$ sudo apt-get install python-pip`
+
 `$ sudo pip install psutil`
+
 `$ make int`
 
 ---

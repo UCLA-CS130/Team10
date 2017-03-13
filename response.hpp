@@ -49,8 +49,11 @@ public:
   // Change status of the response.
   void SetStatus(const ResponseCode response_code);
 
-  // Add a header.
+  // Add a header from two strings
   void AddHeader(const std::string& header_name, const std::string& header_value);
+
+  //Add a header from a pair
+  void AddHeader(const std::pair<std::string, std::string> header);
 
   // Set body content of response.
   void SetBody(const std::string& body);

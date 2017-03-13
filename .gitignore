@@ -3,6 +3,7 @@
 !*.*
 !*/
 !googletest
+!strtk
 
 # Ignore all test binaries
 unit_tests/*

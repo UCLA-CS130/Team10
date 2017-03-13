@@ -5,6 +5,7 @@
 #include "request_handler.hpp"
 #include "request.hpp"
 #include "response.hpp"
+#include "encoder.hpp"
 #include "server_config.hpp"
 
 
@@ -23,7 +24,7 @@ public:
 private:
   std::string m_uri_prefix;
   std::string m_static_path;
-
+  bool m_compression_enabled;
   bool url_decode(const std::string& in, std::string& out);
 };
 

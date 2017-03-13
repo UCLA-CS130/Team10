@@ -21,6 +21,11 @@ void Response::AddHeader(const std::string& header_name, const std::string& head
   m_headers.push_back(header);
 }
 
+void Response::AddHeader(const std::pair<std::string, std::string> header)
+{
+  m_headers.push_back(header);
+}
+
 void Response::SetBody(const std::string& body)
 {
   m_body = body;

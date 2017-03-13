@@ -9,7 +9,7 @@ protected:
   Response response;
   NginxConfig config;
   std::string uri_prefix = "/echo";
-  std::string request_url  = "GET /echo HTTP/1.0\r\ntest\r\n\r\n";
+  std::string request_url  = "GET /echo HTTP/1.0\r\n\r\n";
   std::unique_ptr<Request> request = Request::Parse(request_url);
 };
 

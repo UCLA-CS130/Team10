@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include "mime_types.hpp"
+#include "markdown.hpp"
 
 StaticHandler::StaticHandler()
 {

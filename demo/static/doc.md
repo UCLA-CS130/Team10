@@ -68,13 +68,20 @@ This exact file should be spat back out in HTML format.
 
 ## Design Decisions
 
-For the purposes of our features, our design decisions were mainly
-how we wanted to utilize the Markdown renderer - either as a
+For the Markdown renderer, our design decisions were mainly
+how we wanted to add it to the project - either as a
 separate type of StaticHandler, or just integrated within it.
 In the end, we agreed that the Markdown rendering library should be
 integrated into our exsting StaticHandler since they essentially
 perform the same task, and Markdown only requires one further "step"
 to be able to be displayed as HTML.
+
+For HTTP compression, our decision consisted of choosing the
+most popular algorithm(s) to support, and deciding whether to
+create a handler for compression and allow for handler chaining,
+integrate it within the existing static handler, or to create a
+static utility class, instead. We went with the third option in favor of flexibility and modularity.
+
 
 ### Quick Guide to adding new Handlers
 

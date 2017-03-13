@@ -23,13 +23,15 @@ Encoder::EncodingType Encoder::choose_encoding(const std::string& accepted_encod
         for (std::size_t i = 0; i < encoding.size(); i++) {
             if (encoding[i] == ';') {
                 std::string algo = encoding.substr(0, i);
-                float q_value = std::stof(encoding.substr(i + 1));
+                std::string q_value_string = encoding.substr(i + 3);
+                float q_value = std::stof(q_value_string);
                 encoding_map.insert(std::make_pair(q_value, algo));
+                break;
             }
-            else {
+            if (i == encoding.size() - 1) {
                 encoding_map.insert(std::make_pair(1.0, encoding));
             }
-        }
+        }            
     }
     
     std::string encoding_type_string = "";

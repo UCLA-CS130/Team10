@@ -40,6 +40,6 @@ TEST_F(StaticHandler_Test, HandleRequest_Test){
   config->statements_.push_back(statement);
   EXPECT_EQ(RequestHandler::OK, handler.Init(uri_prefix, *config));
   EXPECT_EQ(RequestHandler::OK, handler.HandleRequest(*request, &response));
-  std::string result = "HTTP/1.0 200 OK\r\nContent-Length: 107\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html>\n<body>\n\n<h1>CS130 is the best class ever.</h1>\n\n<p>I <3 Google</p>\n\n</body>\n</html>\n";
+  std::string result = "HTTP/1.0 200 OK\r\nContent-Encoding: identity\r\nContent-Length: 107\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html>\n<body>\n\n<h1>CS130 is the best class ever.</h1>\n\n<p>I <3 Google</p>\n\n</body>\n</html>\n";
   EXPECT_EQ(result, response.ToString());
 }
